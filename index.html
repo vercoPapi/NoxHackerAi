@@ -3,367 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLUTO KEY SYSTEM</title>
+<title>FLUTO</title>
 
 <style>
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
 body{
-    background:#050510;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#050510;
+overflow:hidden;
 }
 
-.box{
-    width:380px;
-    padding:30px;
-    border-radius:20px;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(12px);
-    box-shadow:0 0 25px rgba(138,43,226,.6);
+.container{
+width:90%;
+max-width:400px;
+padding:30px;
+border-radius:25px;
+background:rgba(15,15,30,.95);
+box-shadow:
+0 0 20px #8a2be2,
+0 0 40px #2196f3;
 }
 
 .logo{
-    text-align:center;
-    font-size:45px;
-    font-weight:bold;
-    margin-bottom:35px;
-    animation:rgbText 3s infinite;
+text-align:center;
+font-size:55px;
+font-weight:bold;
+margin-bottom:35px;
+animation:rgbText 3s infinite;
 }
 
-.task{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin:18px 0;
-    color:white;
-    font-size:20px;
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin:20px 0;
+color:#fff;
+font-size:26px;
 }
 
-.timer{
-    width:80px;
-    height:42px;
-    border:none;
-    border-radius:12px;
-    color:white;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    animation:rgbButton 3s infinite;
-}
-
-.timer:disabled{
-    opacity:1;
+.btn{
+width:90px;
+height:50px;
+border:none;
+border-radius:15px;
+font-size:22px;
+font-weight:bold;
+color:white;
+cursor:pointer;
+animation:rgbButton 3s infinite;
 }
 
 #getKey{
-    display:none;
-    width:100%;
-    margin-top:25px;
-    height:50px;
-    border:none;
-    border-radius:14px;
-    color:white;
-    font-size:22px;
-    font-weight:bold;
-    cursor:pointer;
-    animation:rgbButton 3s infinite;
+display:none;
+width:100%;
+height:55px;
+margin-top:25px;
+border:none;
+border-radius:15px;
+font-size:24px;
+font-weight:bold;
+color:white;
+cursor:pointer;
+animation:rgbButton 3s infinite;
 }
 
 @keyframes rgbText{
-    0%{
-        color:#8a2be2;
-        text-shadow:0 0 15px #8a2be2;
-    }
-    33%{
-        color:#2196f3;
-        text-shadow:0 0 15px #2196f3;
-    }
-    66%{
-        color:#ff0033;
-        text-shadow:0 0 15px #ff0033;
-    }
-    100%{
-        color:#8a2be2;
-        text-shadow:0 0 15px #8a2be2;
-    }
+0%{
+color:#8a2be2;
+text-shadow:0 0 20px #8a2be2;
+}
+33%{
+color:#2196f3;
+text-shadow:0 0 20px #2196f3;
+}
+66%{
+color:#ff0033;
+text-shadow:0 0 20px #ff0033;
+}
+100%{
+color:#8a2be2;
+text-shadow:0 0 20px #8a2be2;
+}
 }
 
 @keyframes rgbButton{
-    0%{
-        background:#8a2be2;
-        box-shadow:0 0 15px #8a2be2;
-    }
-    33%{
-        background:#2196f3;
-        box-shadow:0 0 15px #2196f3;
-    }
-    66%{
-        background:#ff0033;
-        box-shadow:0 0 15px #ff0033;
-    }
-    100%{
-        background:#8a2be2;
-        box-shadow:0 0 15px #8a2be2;
-    }
+0%{
+background:#8a2be2;
+box-shadow:0 0 20px #8a2be2;
+}
+33%{
+background:#2196f3;
+box-shadow:0 0 20px #2196f3;
+}
+66%{
+background:#ff0033;
+box-shadow:0 0 20px #ff0033;
+}
+100%{
+background:#8a2be2;
+box-shadow:0 0 20px #8a2be2;
+}
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-    <div class="logo">FLUTO</div>
+<div class="logo">FLUTO</div>
 
-    <div class="task">
-        <span>Join Channel</span>
-        <button id="joinBtn" class="timer">25</button>
-    </div>
+<div class="row">
+<span>Join Channel</span>
+<button class="btn" id="joinBtn">25</button>
+</div>
 
-    <div class="task">
-        <span>Follow TikTok</span>
-        <button id="tiktokBtn" class="timer">15</button>
-    </div>
+<div class="row">
+<span>Follow TikTok</span>
+<button class="btn" id="tiktokBtn">15</button>
+</div>
 
-    <button id="getKey">GET KEY</button>
+<button id="getKey">GET KEY</button>
 
 </div>
 
 <script>
 
-let joinTime = 25;
-let tiktokTime = 15;
+let joinDone=false;
+let tiktokDone=false;
 
-let joinDone = false;
-let tiktokDone = false;
+document.getElementById("joinBtn").onclick=function(){
 
-const joinBtn = document.getElementById("joinBtn");
-const tiktokBtn = document.getElementById("tiktokBtn");
-const getKey = document.getElementById("getKey");
+window.open(
+"https://whatsapp.com/channel/0029Vb7BMKU6mYPSsNzTWs45",
+"_blank"
+);
 
-joinBtn.onclick = function(){
+this.disabled=true;
 
-    if(joinDone) return;
+let time=25;
 
-    window.open(
-    "https://whatsapp.com/channel/0029Vb7BMKU6mYPSsNzTWs45",
-    "_blank"
-    );
+let run=setInterval(()=>{
+time--;
+this.innerHTML=time;
 
-    joinBtn.disabled = true;
+if(time<=0){
+clearInterval(run);
+this.innerHTML="✓";
+joinDone=true;
+checkDone();
+}
+},1000);
 
-    let countdown = setInterval(() => {
-
-        joinTime--;
-        joinBtn.innerText = joinTime;
-
-        if(joinTime <= 0){
-            clearInterval(countdown);
-            joinBtn.innerText = "✓";
-            joinDone = true;
-            checkDone();
-        }
-
-    },1000);
 };
 
-tiktokBtn.onclick = function(){
+document.getElementById("tiktokBtn").onclick=function(){
 
-    if(tiktokDone) return;
+window.open(
+"https://www.tiktok.com/@anzyonly",
+"_blank"
+);
 
-    window.open(
-    "https://www.tiktok.com/@anzyonly",
-    "_blank"
-    );
+this.disabled=true;
 
-    tiktokBtn.disabled = true;
+let time=15;
 
-    let countdown = setInterval(() => {
+let run=setInterval(()=>{
+time--;
+this.innerHTML=time;
 
-        tiktokTime--;
-        tiktokBtn.innerText = tiktokTime;
+if(time<=0){
+clearInterval(run);
+this.innerHTML="✓";
+tiktokDone=true;
+checkDone();
+}
+},1000);
 
-        if(tiktokTime <= 0){
-            clearInterval(countdown);
-            tiktokBtn.innerText = "✓";
-            tiktokDone = true;
-            checkDone();
-        }
-
-    },1000);
 };
 
 function checkDone(){
-
-    if(joinDone && tiktokDone){
-        getKey.style.display = "block";
-    }
-
+if(joinDone && tiktokDone){
+document.getElementById("getKey").style.display="block";
+}
 }
 
-getKey.onclick = function(){
-
-    window.open(
-    "https://pastebin.com/KCRbyyee",
-    "_blank"
-    );
-
-};
-
-</script>
-
-</body>
-</html>    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin:18px 0;
-    font-size:20px;
-    color:white;
-}
-
-.timer{
-    width:70px;
-    height:40px;
-    border:none;
-    border-radius:10px;
-    color:white;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    animation:rgbGlowBg 3s infinite;
-}
-
-#getKey{
-    display:none;
-    margin-top:30px;
-    padding:15px 35px;
-    border:none;
-    border-radius:12px;
-    color:white;
-    font-size:22px;
-    font-weight:bold;
-    cursor:pointer;
-    animation:rgbGlowBg 3s infinite;
-}
-
-@keyframes rgbGlow{
-    0%{
-        color:#8a2be2;
-        text-shadow:0 0 20px #8a2be2;
-    }
-    33%{
-        color:#2196f3;
-        text-shadow:0 0 20px #2196f3;
-    }
-    66%{
-        color:#ff0033;
-        text-shadow:0 0 20px #ff0033;
-    }
-    100%{
-        color:#8a2be2;
-        text-shadow:0 0 20px #8a2be2;
-    }
-}
-
-@keyframes rgbGlowBg{
-    0%{background:#8a2be2; box-shadow:0 0 15px #8a2be2;}
-    33%{background:#2196f3; box-shadow:0 0 15px #2196f3;}
-    66%{background:#ff0033; box-shadow:0 0 15px #ff0033;}
-    100%{background:#8a2be2; box-shadow:0 0 15px #8a2be2;}
-}
-</style>
-</head>
-<body>
-
-<div class="box">
-
-    <div class="logo">FLUTO</div>
-
-    <div class="task">
-        <span>Join Saluran</span>
-        <button id="joinBtn" class="timer">25</button>
-    </div>
-
-    <div class="task">
-        <span>Follow TikTok</span>
-        <button id="tiktokBtn" class="timer">15</button>
-    </div>
-
-    <button id="getKey">GET KEY</button>
-
-</div>
-
-<script>
-
-let joinTime = 25;
-let tiktokTime = 15;
-
-const joinBtn = document.getElementById("joinBtn");
-const tiktokBtn = document.getElementById("tiktokBtn");
-const getKey = document.getElementById("getKey");
-
-let joinDone = false;
-let tiktokDone = false;
-
-joinBtn.onclick = function(){
-
-    if(joinDone) return;
-
-    window.open("https://t.me/", "_blank");
-
-    joinBtn.disabled = true;
-
-    let countdown = setInterval(()=>{
-        joinTime--;
-        joinBtn.innerText = joinTime;
-
-        if(joinTime <= 0){
-            clearInterval(countdown);
-            joinBtn.innerText = "✓";
-            joinDone = true;
-            checkDone();
-        }
-    },1000);
-};
-
-tiktokBtn.onclick = function(){
-
-    if(tiktokDone) return;
-
-    window.open("https://www.tiktok.com/", "_blank");
-
-    tiktokBtn.disabled = true;
-
-    let countdown = setInterval(()=>{
-        tiktokTime--;
-        tiktokBtn.innerText = tiktokTime;
-
-        if(tiktokTime <= 0){
-            clearInterval(countdown);
-            tiktokBtn.innerText = "✓";
-            tiktokDone = true;
-            checkDone();
-        }
-    },1000);
-};
-
-function checkDone(){
-    if(joinDone && tiktokDone){
-        getKey.style.display = "inline-block";
-    }
-}
-
-getKey.onclick = function(){
-    window.location.href =
-    "https://pastebin.com/KCRbyyee";
+document.getElementById("getKey").onclick=function(){
+window.open(
+"https://pastebin.com/KCRbyyee",
+"_blank"
+);
 };
 
 </script>
