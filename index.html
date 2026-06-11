@@ -3,205 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLUTO</title>
+<title>FLUTO KEY SYSTEM</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:#050510;
-overflow:hidden;
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#050510;
+    font-family:Arial, sans-serif;
 }
 
-.container{
-width:90%;
-max-width:400px;
-padding:30px;
-border-radius:25px;
-background:rgba(15,15,30,.95);
-box-shadow:
-0 0 20px #8a2be2,
-0 0 40px #2196f3;
+.box{
+    width:360px;
+    padding:25px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    box-shadow:0 0 30px #6f00ff;
+    text-align:center;
 }
 
 .logo{
-text-align:center;
-font-size:55px;
-font-weight:bold;
-margin-bottom:35px;
-animation:rgbText 3s infinite;
+    font-size:42px;
+    font-weight:bold;
+    margin-bottom:30px;
+    animation:rgbGlow 3s infinite;
 }
 
-.row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin:20px 0;
-color:#fff;
-font-size:26px;
+.task{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:18px 0;
+    font-size:20px;
+    color:white;
 }
 
-.btn{
-width:90px;
-height:50px;
-border:none;
-border-radius:15px;
-font-size:22px;
-font-weight:bold;
-color:white;
-cursor:pointer;
-animation:rgbButton 3s infinite;
+.timer{
+    width:70px;
+    height:40px;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    animation:rgbGlowBg 3s infinite;
 }
 
 #getKey{
-display:none;
-width:100%;
-height:55px;
-margin-top:25px;
-border:none;
-border-radius:15px;
-font-size:24px;
-font-weight:bold;
-color:white;
-cursor:pointer;
-animation:rgbButton 3s infinite;
+    display:none;
+    margin-top:30px;
+    padding:15px 35px;
+    border:none;
+    border-radius:12px;
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+    animation:rgbGlowBg 3s infinite;
 }
 
-@keyframes rgbText{
-0%{
-color:#8a2be2;
-text-shadow:0 0 20px #8a2be2;
-}
-33%{
-color:#2196f3;
-text-shadow:0 0 20px #2196f3;
-}
-66%{
-color:#ff0033;
-text-shadow:0 0 20px #ff0033;
-}
-100%{
-color:#8a2be2;
-text-shadow:0 0 20px #8a2be2;
-}
+@keyframes rgbGlow{
+    0%{
+        color:#8a2be2;
+        text-shadow:0 0 20px #8a2be2;
+    }
+    33%{
+        color:#2196f3;
+        text-shadow:0 0 20px #2196f3;
+    }
+    66%{
+        color:#ff0033;
+        text-shadow:0 0 20px #ff0033;
+    }
+    100%{
+        color:#8a2be2;
+        text-shadow:0 0 20px #8a2be2;
+    }
 }
 
-@keyframes rgbButton{
-0%{
-background:#8a2be2;
-box-shadow:0 0 20px #8a2be2;
-}
-33%{
-background:#2196f3;
-box-shadow:0 0 20px #2196f3;
-}
-66%{
-background:#ff0033;
-box-shadow:0 0 20px #ff0033;
-}
-100%{
-background:#8a2be2;
-box-shadow:0 0 20px #8a2be2;
-}
+@keyframes rgbGlowBg{
+    0%{background:#8a2be2; box-shadow:0 0 15px #8a2be2;}
+    33%{background:#2196f3; box-shadow:0 0 15px #2196f3;}
+    66%{background:#ff0033; box-shadow:0 0 15px #ff0033;}
+    100%{background:#8a2be2; box-shadow:0 0 15px #8a2be2;}
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="box">
 
-<div class="logo">FLUTO</div>
+    <div class="logo">FLUTO</div>
 
-<div class="row">
-<span>Join Channel</span>
-<button class="btn" id="joinBtn">25</button>
-</div>
+    <div class="task">
+        <span>Join Saluran</span>
+        <button id="joinBtn" class="timer">25</button>
+    </div>
 
-<div class="row">
-<span>Follow TikTok</span>
-<button class="btn" id="tiktokBtn">15</button>
-</div>
+    <div class="task">
+        <span>Follow TikTok</span>
+        <button id="tiktokBtn" class="timer">15</button>
+    </div>
 
-<button id="getKey">GET KEY</button>
+    <button id="getKey">GET KEY</button>
 
 </div>
 
 <script>
 
-let joinDone=false;
-let tiktokDone=false;
+let joinTime = 25;
+let tiktokTime = 15;
 
-document.getElementById("joinBtn").onclick=function(){
+const joinBtn = document.getElementById("joinBtn");
+const tiktokBtn = document.getElementById("tiktokBtn");
+const getKey = document.getElementById("getKey");
 
-window.open(
-"https://whatsapp.com/channel/0029Vb7BMKU6mYPSsNzTWs45",
-"_blank"
-);
+let joinDone = false;
+let tiktokDone = false;
 
-this.disabled=true;
+joinBtn.onclick = function(){
 
-let time=25;
+    if(joinDone) return;
 
-let run=setInterval(()=>{
-time--;
-this.innerHTML=time;
+    window.open("https://whatsapp.com/channel/0029Vb7BMKU6mYPSsNzTWs45", "_blank");
 
-if(time<=0){
-clearInterval(run);
-this.innerHTML="✓";
-joinDone=true;
-checkDone();
-}
-},1000);
+    joinBtn.disabled = true;
 
+    let countdown = setInterval(()=>{
+        joinTime--;
+        joinBtn.innerText = joinTime;
+
+        if(joinTime <= 0){
+            clearInterval(countdown);
+            joinBtn.innerText = "✓";
+            joinDone = true;
+            checkDone();
+        }
+    },1000);
 };
 
-document.getElementById("tiktokBtn").onclick=function(){
+tiktokBtn.onclick = function(){
 
-window.open(
-"https://www.tiktok.com/@anzyonly",
-"_blank"
-);
+    if(tiktokDone) return;
 
-this.disabled=true;
+    window.open("https://www.tiktok.com/@anzyonly", "_blank");
 
-let time=15;
+    tiktokBtn.disabled = true;
 
-let run=setInterval(()=>{
-time--;
-this.innerHTML=time;
+    let countdown = setInterval(()=>{
+        tiktokTime--;
+        tiktokBtn.innerText = tiktokTime;
 
-if(time<=0){
-clearInterval(run);
-this.innerHTML="✓";
-tiktokDone=true;
-checkDone();
-}
-},1000);
-
+        if(tiktokTime <= 0){
+            clearInterval(countdown);
+            tiktokBtn.innerText = "✓";
+            tiktokDone = true;
+            checkDone();
+        }
+    },1000);
 };
 
 function checkDone(){
-if(joinDone && tiktokDone){
-document.getElementById("getKey").style.display="block";
-}
+    if(joinDone && tiktokDone){
+        getKey.style.display = "inline-block";
+    }
 }
 
-document.getElementById("getKey").onclick=function(){
-window.open(
-"https://pastebin.com/KCRbyyee",
-"_blank"
-);
+getKey.onclick = function(){
+    window.location.href =
+    "https://pastebin.com/KCRbyyee";
 };
 
 </script>
