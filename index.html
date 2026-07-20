@@ -1,830 +1,916 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-    <title>AI Hacker — HOLO v6</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&family=Fira+Code:wght@400;600&display=swap');
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Hacker — HOLO v6.2</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&family=Fira+Code:wght@400;600&display=swap');
 
-        :root {
-            --cyan: #00f0ff;
-            --magenta: #f000ff;
-            --green: #00ff41;
-            --gold: #ffd700;
-            --dark: #050508;
-            --font: 'Rajdhani', sans-serif;
-            --disp: 'Orbitron', monospace;
-            --code: 'Fira Code', monospace;
-        }
+:root{
+  --cyan:#00f0ff;
+  --magenta:#f000ff;
+  --green:#00ff41;
+  --dark:#050508;
+  --font:'Rajdhani',sans-serif;
+  --disp:'Orbitron',monospace;
+  --code:'Fira Code',monospace;
+}
 
-        body {
-            font-family: var(--font);
-            background: var(--dark);
-            min-height: 100vh; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            perspective: 1400px; color: #fff;
-            cursor: default;
-        }
+body{
+  font-family:var(--font);background:var(--dark);
+  min-height:100vh;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  perspective:1400px;color:#fff;cursor:default;
+}
 
-        /* ===== 3D HOLOGRAPHIC SCENE ===== */
-        #holo-scene {
-            position: fixed; inset: 0; z-index: 0;
-            background: radial-gradient(ellipse at center, #0a0a20 0%, #050508 70%);
-        }
-        #holo-scene canvas {
-            display: block; width: 100%; height: 100%;
-        }
+/* ===== 3D HOLO SCENE ===== */
+#holo{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at center,#0a0a20,#050508)}
+#holo canvas{display:block;width:100%;height:100%}
+.crt{position:fixed;inset:0;z-index:1;pointer-events:none}
+.crt::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.006) 2px,rgba(0,240,255,0.006) 4px)}
+.crt::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.88) 100%)}
+.noise{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.01;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
 
-        /* Scanlines + CRT effect */
-        .crt {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-        }
-        .crt::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.008) 2px, rgba(0,240,255,0.008) 4px);
-        }
-        .crt::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.85) 100%);
-        }
-        .noise {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-            opacity: 0.015;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-            background-repeat: repeat;
-            background-size: 256px 256px;
-        }
+/* ===== CHAT CARD ===== */
+.chat-w{position:relative;z-index:10;width:640px;max-width:95vw;height:820px;max-height:97vh;transform-style:preserve-3d;transition:transform .1s ease;border-radius:20px}
+.chat-c{width:100%;height:100%;background:rgba(5,5,12,0.80);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(0,240,255,0.06);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 0 60px rgba(0,240,255,0.03),0 0 120px rgba(240,0,255,0.015),inset 0 0 80px rgba(0,240,255,0.008)}
 
-        /* ===== CHAT CARD — HOLOGRAPHIC ===== */
-        .chat-wrap {
-            position: relative; z-index: 10;
-            width: 620px; max-width: 95vw;
-            height: 800px; max-height: 96vh;
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease;
-            border-radius: 20px;
-        }
+/* Holographic edge */
+.chat-c::before{content:'';position:absolute;inset:-1px;border-radius:21px;z-index:-1;background:conic-gradient(from 0deg at 50% 50%,rgba(0,240,255,0.12),rgba(240,0,255,0.08),rgba(0,240,255,0.03),rgba(240,0,255,0.12),rgba(0,240,255,0.08),rgba(0,240,255,0.12));animation:edgeP 4s ease-in-out infinite}
+@keyframes edgeP{0%,100%{opacity:.3;filter:hue-rotate(0deg)}50%{opacity:.6;filter:hue-rotate(25deg)}}
 
-        .chat-card {
-            width: 100%; height: 100%;
-            background: rgba(5,5,12,0.82);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(0,240,255,0.08);
-            border-radius: 20px;
-            display: flex; flex-direction: column; overflow: hidden;
-            position: relative;
-            box-shadow:
-                0 0 60px rgba(0,240,255,0.04),
-                0 0 120px rgba(240,0,255,0.02),
-                inset 0 0 80px rgba(0,240,255,0.01);
-        }
+/* ===== HEADER ===== */
+.hd{padding:8px 16px;border-bottom:1px solid rgba(0,240,255,0.05);display:flex;align-items:center;gap:10px;flex-shrink:0;background:rgba(0,0,0,0.15)}
+.h-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(0,240,255,0.1),rgba(240,0,255,0.1));border:1px solid rgba(0,240,255,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 15px rgba(0,240,255,0.04)}
+.h-i h1{font-family:var(--disp);font-size:13px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.h-st{font-size:9px;color:var(--green);display:flex;align-items:center;gap:4px}
+.h-dt{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pd 1.5s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+.h-bd{margin-left:auto;font-family:var(--code);font-size:7px;color:rgba(0,240,255,0.2);border:1px solid rgba(0,240,255,0.04);padding:2px 8px;border-radius:20px;letter-spacing:1px;white-space:nowrap}
+.h-ln{font-family:var(--code);font-size:8px;padding:2px 7px;border-radius:8px;background:rgba(255,255,255,0.015);border:1px solid rgba(0,240,255,0.04);color:var(--cyan);margin-left:4px}
 
-        /* Holographic edge glow */
-        .chat-card::before {
-            content: ''; position: absolute; inset: -1px;
-            border-radius: 21px; z-index: -1;
-            background: conic-gradient(from 0deg at 50% 50%,
-                rgba(0,240,255,0.15), rgba(240,0,255,0.1),
-                rgba(0,240,255,0.05), rgba(240,0,255,0.15),
-                rgba(0,240,255,0.1), rgba(0,240,255,0.15));
-            animation: edgePulse 4s ease-in-out infinite;
-        }
-        @keyframes edgePulse {
-            0%,100% { opacity: 0.3; filter: hue-rotate(0deg); }
-            50% { opacity: 0.7; filter: hue-rotate(30deg); }
-        }
+/* ===== MESSAGES ===== */
+.msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;scroll-behavior:smooth}
+.msgs::-webkit-scrollbar{width:2px}
+.msgs::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.1);border-radius:10px}
 
-        /* ===== HEADER ===== */
-        .header {
-            padding: 10px 18px;
-            border-bottom: 1px solid rgba(0,240,255,0.06);
-            display: flex; align-items: center; gap: 12px;
-            flex-shrink: 0; background: rgba(0,0,0,0.2);
-        }
-        .h-avatar {
-            width: 40px; height: 40px; border-radius: 10px;
-            background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(240,0,255,0.12));
-            border: 1px solid rgba(0,240,255,0.15);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-            transform: translateZ(5px);
-            box-shadow: 0 0 20px rgba(0,240,255,0.05);
-        }
-        .h-info h1 {
-            font-family: var(--disp); font-size: 14px; font-weight: 700;
-            background: linear-gradient(90deg, var(--cyan), var(--magenta));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
-        }
-        .h-info .h-status {
-            font-size: 10px; color: var(--green); display: flex; align-items: center; gap: 5px;
-        }
-        .h-dot {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: var(--green); box-shadow: 0 0 6px var(--green);
-            animation: pulseD 1.5s ease-in-out infinite;
-        }
-        @keyframes pulseD { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
-        .h-badge {
-            margin-left: auto;
-            font-family: var(--code); font-size: 8px;
-            color: rgba(0,240,255,0.25);
-            border: 1px solid rgba(0,240,255,0.06);
-            padding: 3px 10px; border-radius: 20px;
-            letter-spacing: 1px; white-space: nowrap;
-        }
-        .h-lang {
-            font-family: var(--code); font-size: 9px;
-            padding: 2px 8px; border-radius: 10px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(0,240,255,0.05);
-            color: var(--cyan); margin-left: 4px;
-        }
+.msg{display:flex;flex-direction:column;max-width:95%;animation:mUp .25s ease-out both}
+@keyframes mUp{0%{opacity:0;transform:translateY(10px)scale(.97)}100%{opacity:1;transform:translateY(0)scale(1)}}
+.msg.ai{align-self:flex-start}
+.msg.us{align-self:flex-end}
 
-        /* ===== MESSAGES ===== */
-        .msgs {
-            flex: 1; overflow-y: auto; padding: 12px 14px;
-            display: flex; flex-direction: column; gap: 8px;
-            scroll-behavior: smooth;
-        }
-        .msgs::-webkit-scrollbar { width: 2px; }
-        .msgs::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.15); border-radius: 10px; }
+.ml{font-size:7px;font-weight:600;letter-spacing:.5px;margin-bottom:2px;padding:0 2px}
+.msg.ai .ml{color:var(--cyan)}
+.msg.us .ml{color:var(--magenta);text-align:right}
 
-        .msg {
-            display: flex; flex-direction: column;
-            max-width: 94%; animation: msgUp .25s ease-out both;
-        }
-        @keyframes msgUp { 0%{opacity:0;transform:translateY(12px)scale(.96)} 100%{opacity:1;transform:translateY(0)scale(1)} }
-        .msg.ai { align-self: flex-start; }
-        .msg.usr { align-self: flex-end; }
+.b{padding:8px 13px;border-radius:11px;font-size:13px;line-height:1.5;word-wrap:break-word;position:relative;border:1px solid transparent}
+.msg.ai .b{background:rgba(0,240,255,0.035);border-color:rgba(0,240,255,0.06);border-bottom-left-radius:2px;color:#d0f0ff}
+.msg.ai .b::before{content:'◈';position:absolute;left:-8px;bottom:3px;font-size:7px;color:rgba(0,240,255,0.1)}
+.msg.us .b{background:rgba(240,0,255,0.035);border-color:rgba(240,0,255,0.06);border-bottom-right-radius:2px;color:#fcd0ff}
+.msg.us .b::after{content:'◈';position:absolute;right:-8px;bottom:3px;font-size:7px;color:rgba(240,0,255,0.1)}
 
-        .m-label {
-            font-size: 8px; font-weight: 600; letter-spacing: .6px;
-            margin-bottom: 2px; padding: 0 3px;
-        }
-        .msg.ai .m-label { color: var(--cyan); }
-        .msg.usr .m-label { color: var(--magenta); text-align: right; }
+.ty span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--cyan);margin:0 1px;animation:tb 1s ease-in-out infinite}
+.ty span:nth-child(2){animation-delay:.15s}
+.ty span:nth-child(3){animation-delay:.3s}
+@keyframes tb{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-5px);opacity:1}}
 
-        .bub {
-            padding: 9px 14px; border-radius: 12px;
-            font-size: 13.5px; line-height: 1.5;
-            word-wrap: break-word; position: relative;
-            border: 1px solid transparent;
-        }
-        .msg.ai .bub {
-            background: rgba(0,240,255,0.04);
-            border-color: rgba(0,240,255,0.08);
-            border-bottom-left-radius: 2px;
-            color: #d0f0ff;
-        }
-        .msg.ai .bub::before {
-            content: '◈'; position: absolute; left: -9px; bottom: 3px;
-            font-size: 8px; color: rgba(0,240,255,0.12);
-        }
-        .msg.usr .bub {
-            background: rgba(240,0,255,0.04);
-            border-color: rgba(240,0,255,0.08);
-            border-bottom-right-radius: 2px;
-            color: #fcd0ff;
-        }
-        .msg.usr .bub::after {
-            content: '◈'; position: absolute; right: -9px; bottom: 3px;
-            font-size: 8px; color: rgba(240,0,255,0.12);
-        }
+.b pre{background:rgba(0,0,0,0.4);border:1px solid rgba(0,240,255,0.04);border-radius:5px;padding:7px 9px;font-family:var(--code);font-size:10px;line-height:1.4;overflow-x:auto;margin:3px 0;color:#8cf;white-space:pre-wrap}
+.b .sr{background:rgba(0,240,255,0.015);border:1px solid rgba(0,240,255,0.03);border-radius:5px;padding:5px 8px;margin:3px 0}
+.b .sr-t{color:var(--cyan);font-weight:600;font-size:11px}
+.b .sr-s{color:rgba(255,255,255,0.45);font-size:10px}
+.b .sr-u{color:var(--green);font-size:8px;font-family:var(--code)}
+.b .nt{font-size:8px;color:rgba(0,240,255,0.1);font-family:var(--code);margin-top:2px}
 
-        .typing span {
-            display: inline-block; width: 4px; height: 4px;
-            border-radius: 50%; background: var(--cyan);
-            margin: 0 1px;
-            animation: tb 1s ease-in-out infinite;
-        }
-        .typing span:nth-child(2) { animation-delay: .15s; }
-        .typing span:nth-child(3) { animation-delay: .3s; }
-        @keyframes tb { 0%,80%,100%{transform:translateY(0);opacity:.3} 40%{transform:translateY(-6px);opacity:1} }
+.cp{display:inline-block;margin-top:2px;padding:2px 7px;font-family:var(--code);font-size:7px;background:rgba(0,240,255,0.03);border:1px solid rgba(0,240,255,0.05);border-radius:3px;color:var(--cyan);cursor:pointer;transition:all .1s}
+.cp:hover{background:rgba(0,240,255,0.06)}
+.cp.ok{color:var(--green);border-color:rgba(0,255,65,0.12)}
 
-        /* Code block */
-        .bub pre {
-            background: rgba(0,0,0,0.45);
-            border: 1px solid rgba(0,240,255,0.05);
-            border-radius: 6px; padding: 8px 10px;
-            font-family: var(--code); font-size: 10.5px; line-height: 1.4;
-            overflow-x: auto; margin: 4px 0; color: #8cf; white-space: pre-wrap;
-        }
-        .bub .sr {
-            background: rgba(0,240,255,0.02);
-            border: 1px solid rgba(0,240,255,0.04);
-            border-radius: 6px; padding: 6px 10px; margin: 3px 0;
-        }
-        .bub .sr-t { color: var(--cyan); font-weight: 600; font-size: 12px; }
-        .bub .sr-s { color: rgba(255,255,255,0.5); font-size: 10.5px; }
-        .bub .sr-u { color: var(--green); font-size: 9px; font-family: var(--code); }
-        .bub .note {
-            font-size: 9px; color: rgba(0,240,255,0.15);
-            font-family: var(--code); margin-top: 3px;
-        }
+/* ===== INPUT AREA — di atas sedikit agar mudah dipencet ===== */
+.inp-a{
+  padding:5px 14px 8px;
+  border-top:1px solid rgba(0,240,255,0.03);
+  display:flex;
+  gap:6px;
+  align-items:flex-end;
+  flex-shrink:0;
+  background:rgba(0,0,0,0.1);
+  /* posisi naik dikit */
+  position:relative;
+  z-index:2;
+}
+.inp-a textarea{
+  flex:1;
+  background:rgba(0,240,255,0.012);
+  border:1px solid rgba(0,240,255,0.05);
+  border-radius:10px;
+  padding:7px 12px;
+  font-family:var(--font);
+  font-size:13px;
+  font-weight:500;
+  color:#d0e8ff;
+  resize:none;
+  outline:none;
+  min-height:34px;
+  max-height:72px;
+  transition:border-color .2s;
+}
+.inp-a textarea:focus{border-color:rgba(0,240,255,0.12)}
+.inp-a textarea::placeholder{color:rgba(0,240,255,0.08)}
 
-        .cpy {
-            display: inline-block; margin-top: 3px; padding: 2px 8px;
-            font-family: var(--code); font-size: 8px;
-            background: rgba(0,240,255,0.04);
-            border: 1px solid rgba(0,240,255,0.06);
-            border-radius: 4px; color: var(--cyan); cursor: pointer;
-            transition: all .1s;
-        }
-        .cpy:hover { background: rgba(0,240,255,0.08); }
-        .cpy.ok { color: var(--green); border-color: rgba(0,255,65,0.15); }
+.btn{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid rgba(0,240,255,0.08);
+  background:rgba(0,240,255,0.03);
+  color:var(--cyan);
+  font-size:15px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .15s;
+  flex-shrink:0;
+  /* naik dikit jg */
+  margin-bottom:0;
+}
+.btn:hover{
+  background:rgba(0,240,255,0.07);
+  border-color:rgba(0,240,255,0.15);
+  box-shadow:0 0 15px rgba(0,240,255,0.03);
+}
+.btn:active{transform:scale(.92)}
 
-        /* ===== INPUT ===== */
-        .inp-area {
-            padding: 8px 14px 12px;
-            border-top: 1px solid rgba(0,240,255,0.04);
-            display: flex; gap: 8px; align-items: flex-end;
-            flex-shrink: 0; background: rgba(0,0,0,0.12);
-        }
-        .inp-area textarea {
-            flex: 1;
-            background: rgba(0,240,255,0.015);
-            border: 1px solid rgba(0,240,255,0.06);
-            border-radius: 10px; padding: 8px 12px;
-            font-family: var(--font); font-size: 13px; font-weight: 500;
-            color: #d0e8ff; resize: none; outline: none;
-            min-height: 36px; max-height: 80px;
-            transition: border-color .2s;
-        }
-        .inp-area textarea:focus { border-color: rgba(0,240,255,0.15); }
-        .inp-area textarea::placeholder { color: rgba(0,240,255,0.1); }
+.ftr{
+  padding:2px 14px;
+  font-size:7px;
+  color:rgba(0,240,255,0.06);
+  font-family:var(--code);
+  display:flex;
+  justify-content:space-between;
+  background:rgba(0,0,0,0.03);
+  border-top:1px solid rgba(0,240,255,0.015);
+  flex-shrink:0;
+}
 
-        .btn {
-            width: 40px; height: 40px; border-radius: 10px;
-            border: 1px solid rgba(0,240,255,0.1);
-            background: rgba(0,240,255,0.04); color: var(--cyan);
-            font-size: 16px; cursor: pointer; display: flex;
-            align-items: center; justify-content: center;
-            transition: all .15s; flex-shrink: 0;
-        }
-        .btn:hover {
-            background: rgba(0,240,255,0.08);
-            border-color: rgba(0,240,255,0.2);
-            box-shadow: 0 0 20px rgba(0,240,255,0.04);
-        }
-
-        .footer {
-            padding: 3px 16px;
-            font-size: 8px; color: rgba(0,240,255,0.08);
-            font-family: var(--code);
-            display: flex; justify-content: space-between;
-            background: rgba(0,0,0,0.05);
-            border-top: 1px solid rgba(0,240,255,0.02);
-            flex-shrink: 0;
-        }
-
-        @media (max-width:540px) {
-            .chat-wrap { max-width:100vw; max-height:100vh; border-radius:0; transform:none!important; }
-            .chat-card { border-radius:0; }
-            .chat-card::before { border-radius:0; }
-            .msgs { padding:8px; }
-            .msg { max-width:97%; }
-            .bub { font-size:12.5px; }
-        }
-    </style>
+@media(max-width:540px){
+  .chat-w{max-width:100vw;max-height:100vh;border-radius:0;transform:none!important}
+  .chat-c{border-radius:0}.chat-c::before{border-radius:0}
+  .msgs{padding:8px}.msg{max-width:98%}.b{font-size:12px}
+}
+</style>
 </head>
 <body>
 
-<div id="holo-scene"></div>
+<div id="holo"></div>
 <div class="crt"></div>
 <div class="noise"></div>
 
-<div class="chat-wrap" id="chatWrap">
-    <div class="chat-card">
-        <div class="header">
-            <div class="h-avatar">🌀</div>
-            <div class="h-info">
-                <h1>AI HACKER HOLO</h1>
-                <span class="h-status"><span class="h-dot"></span> NEURAL ONLINE · <span id="langShow">🌐 id</span></span>
-            </div>
-            <div class="h-badge">v6.0 HOLO</div>
-        </div>
-
-        <div class="msgs" id="msgs"></div>
-
-        <div class="inp-area">
-            <textarea id="inp" rows="1" placeholder="Tanya apapun, suruh buat kode, atau ngobrol..."></textarea>
-            <button class="btn" id="snd">⏎</button>
-        </div>
-        <div class="footer">
-            <span>🧠 NEURAL v6</span>
-            <span>⚡ SEARCH · CODE · CHAT</span>
-        </div>
+<div class="chat-w" id="chatW">
+  <div class="chat-c">
+    <div class="hd">
+      <div class="h-av">🌀</div>
+      <div class="h-i">
+        <h1>AI HACKER HOLO</h1>
+        <span class="h-st"><span class="h-dt"></span> NEURAL ONLINE · <span id="lngShow">🌐 id</span></span>
+      </div>
+      <div class="h-bd">v6.2 HOLO</div>
     </div>
+
+    <div class="msgs" id="msgs"></div>
+
+    <!-- INPUT AREA — posisi naik, gak terlalu ke bawah -->
+    <div class="inp-a">
+      <textarea id="inp" rows="1" placeholder="Tanya apapun, suruh buat kode, atau ngobrol..."></textarea>
+      <button class="btn" id="snd" title="Kirim">➤</button>
+    </div>
+
+    <div class="ftr">
+      <span>🧠 NEURAL v6.2</span>
+      <span>⚡ SEARCH · CODE · CHAT</span>
+    </div>
+  </div>
 </div>
 
 <script>
 // ==================================================================
-// 1. HOLOGRAPHIC 3D BACKGROUND — Rotating Cube Grid + Particles
+// 1. HOLOGRAPHIC 3D BACKGROUND
 // ==================================================================
-(function holo() {
-    const container = document.getElementById('holo-scene');
-    const c = document.createElement('canvas');
-    container.appendChild(c);
-    const ctx = c.getContext('2d');
-    let W, H;
+(function holo(){
+  const container=document.getElementById('holo');
+  const c=document.createElement('canvas');container.appendChild(c);
+  const ctx=c.getContext('2d');let W,H;
+  const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight};rs();addEventListener('resize',rs);
 
-    function resize() {
-        W = c.width = innerWidth;
-        H = c.height = innerHeight;
-    }
-    resize();
-    addEventListener('resize', resize);
+  const CUBE=26,GRID=6,HALF=GRID*CUBE/2;
+  const nodes=[],edges=[];
+  for(let x=0;x<GRID;x++)for(let y=0;y<GRID;y++)for(let z=0;z<GRID;z++)
+    nodes.push({x:x*CUBE-HALF+CUBE/2,y:y*CUBE-HALF+CUBE/2,z:z*CUBE-HALF+CUBE/2,ox:(Math.random()-.5)*10,oy:(Math.random()-.5)*10,oz:(Math.random()-.5)*10});
+  for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+    const d=Math.abs(nodes[i].x-nodes[j].x)+Math.abs(nodes[i].y-nodes[j].y)+Math.abs(nodes[i].z-nodes[j].z);
+    if(Math.round(d)===CUBE)edges.push({a:i,b:j});
+  }
 
-    // --- 3D Cube Grid Parameters ---
-    const CUBE_SIZE = 28;
-    const GRID = 6; // 6x6x6
-    const HALF = GRID * CUBE_SIZE / 2;
-    const nodes = [];
-    const edges = [];
+  const pts=Array.from({length:120},()=>({x:(Math.random()-.5)*360,y:(Math.random()-.5)*360,z:(Math.random()-.5)*360,s:Math.random()*1+.2,sp:Math.random()*.3+.05,ph:Math.random()*Math.PI*2,hue:Math.random()>.6?180:300}));
 
-    // Build cube grid nodes
-    for (let x = 0; x < GRID; x++) {
-        for (let y = 0; y < GRID; y++) {
-            for (let z = 0; z < GRID; z++) {
-                nodes.push({
-                    x: x * CUBE_SIZE - HALF + CUBE_SIZE/2,
-                    y: y * CUBE_SIZE - HALF + CUBE_SIZE/2,
-                    z: z * CUBE_SIZE - HALF + CUBE_SIZE/2,
-                    ox: (Math.random() - 0.5) * 12,
-                    oy: (Math.random() - 0.5) * 12,
-                    oz: (Math.random() - 0.5) * 12,
-                });
-            }
-        }
-    }
+  let mx=0,my=0,tx=0,ty=0;
+  addEventListener('mousemove',e=>{tx=(e.clientX/W-.5)*.7;ty=(e.clientY/H-.5)*.7});
+  let ang=0;
 
-    // Build edges (axis-aligned)
-    function connect(a, b) {
-        const dx = Math.abs(nodes[a].x - nodes[b].x);
-        const dy = Math.abs(nodes[a].y - nodes[b].y);
-        const dz = Math.abs(nodes[a].z - nodes[b].z);
-        const dist = Math.round(dx + dy + dz);
-        if (dist === CUBE_SIZE) edges.push({ a, b });
-    }
-    for (let i = 0; i < nodes.length; i++) {
-        for (let j = i+1; j < nodes.length; j++) {
-            connect(i, j);
-        }
-    }
+  function draw(){
+    mx+=(tx-mx)*.05;my+=(ty-my)*.05;ang+=.002;
+    ctx.fillStyle='#050508';ctx.fillRect(0,0,W,H);
+    const cx=W/2+mx*12,cy=H/2+my*12;
+    const rx=ang+my*.3,ry=ang*.7+mx*.3,sx=Math.sin(rx),cx2=Math.cos(rx),sy=Math.sin(ry),cy2=Math.cos(ry);
 
-    // Particles (floating)
-    const particles = Array.from({length: 150}, () => ({
-        x: (Math.random() - 0.5) * 400,
-        y: (Math.random() - 0.5) * 400,
-        z: (Math.random() - 0.5) * 400,
-        s: Math.random() * 1.2 + 0.3,
-        sp: Math.random() * 0.3 + 0.05,
-        ph: Math.random() * Math.PI * 2,
-        hue: Math.random() > 0.6 ? 180 : 300,
-    }));
-
-    let mx = 0, my = 0, tx = 0, ty = 0;
-    addEventListener('mousemove', e => {
-        tx = (e.clientX / W - 0.5) * 0.8;
-        ty = (e.clientY / H - 0.5) * 0.8;
+    const proj=nodes.map(n=>{
+      let x=n.x+n.ox*Math.sin(ang*.5+n.x*.01),y=n.y+n.oy*Math.cos(ang*.4+n.y*.01),z=n.z+n.oz*Math.sin(ang*.6+n.z*.01);
+      let x1=x*cy2-z*sy;z=x*sy+z*cy2;x=x1;
+      let y1=y*cx2-z*sx;z2=y*sx+z*cx2;y=y1;
+      const sc=280/(z+380);
+      return {px:cx+x*sc,py:cy+y*sc,z,sc:Math.max(0,sc)};
     });
 
-    let angle = 0;
-    function draw() {
-        // Smooth mouse
-        mx += (tx - mx) * 0.05;
-        my += (ty - my) * 0.05;
+    const ev=edges.map(e=>{
+      const a=proj[e.a],b=proj[e.b];
+      return {...e,az:(a.z+b.z)/2,aP:a,bP:b};
+    }).sort((a,b)=>b.az-a.az);
 
-        angle += 0.0025;
-
-        ctx.fillStyle = '#050508';
-        ctx.fillRect(0, 0, W, H);
-
-        // Center offset
-        const cx = W / 2 + mx * 15;
-        const cy = H / 2 + my * 15;
-
-        // Rotate nodes
-        const rotX = angle + my * 0.3;
-        const rotY = angle * 0.7 + mx * 0.3;
-        const sinX = Math.sin(rotX), cosX = Math.cos(rotX);
-        const sinY = Math.sin(rotY), cosY = Math.cos(rotY);
-
-        const projected = nodes.map(n => {
-            // Apply offset oscillation
-            const ox = n.ox * Math.sin(angle * 0.5 + n.x * 0.01);
-            const oy = n.oy * Math.cos(angle * 0.4 + n.y * 0.01);
-            const oz = n.oz * Math.sin(angle * 0.6 + n.z * 0.01);
-
-            let x = n.x + ox;
-            let y = n.y + oy;
-            let z = n.z + oz;
-
-            // Rotate Y
-            let x1 = x * cosY - z * sinY;
-            let z1 = x * sinY + z * cosY;
-            x = x1; z = z1;
-
-            // Rotate X
-            let y1 = y * cosX - z * sinX;
-            let z2 = y * sinX + z * cosX;
-            y = y1; z = z2;
-
-            // Perspective
-            const scale = 300 / (z + 400);
-            const px = cx + x * scale;
-            const py = cy + y * scale;
-
-            return { px, py, z, scale: Math.max(0, scale) };
-        });
-
-        // Draw edges (back to front)
-        const edgeVisible = edges.map(e => {
-            const a = projected[e.a];
-            const b = projected[e.b];
-            const avgZ = (a.z + b.z) / 2;
-            return { ...e, avgZ, aP: a, bP: b };
-        }).sort((a, b) => b.avgZ - a.avgZ);
-
-        for (const e of edgeVisible) {
-            const alpha = Math.max(0.02, Math.min(0.08, (e.aP.scale + e.bP.scale) * 0.03));
-            ctx.strokeStyle = `rgba(0,240,255,${alpha})`;
-            ctx.lineWidth = 0.3 + (e.aP.scale + e.bP.scale) * 0.2;
-            ctx.beginPath();
-            ctx.moveTo(e.aP.px, e.aP.py);
-            ctx.lineTo(e.bP.px, e.bP.py);
-            ctx.stroke();
-        }
-
-        // Draw nodes (brightness by z)
-        const sortedNodes = projected.map((p, i) => ({ ...p, i: i })).sort((a, b) => b.z - a.z);
-        for (const n of sortedNodes) {
-            const alpha = Math.max(0.1, Math.min(0.6, n.scale * 0.3));
-            const size = 0.5 + n.scale * 1.0;
-            ctx.beginPath();
-            ctx.arc(n.px, n.py, size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(0,240,255,${alpha})`;
-            ctx.fill();
-
-            // Outer glow
-            ctx.beginPath();
-            ctx.arc(n.px, n.py, size * 3, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(0,240,255,${alpha * 0.05})`;
-            ctx.fill();
-        }
-
-        // Draw particles
-        for (const p of particles) {
-            p.x += Math.sin(angle * p.sp + p.ph) * 0.08;
-            p.y += Math.cos(angle * p.sp * 0.7 + p.ph) * 0.06;
-            p.z += Math.sin(angle * p.sp * 0.5 + p.ph) * 0.04;
-
-            // Wrap
-            if (p.x > 220) p.x = -220; if (p.x < -220) p.x = 220;
-            if (p.y > 220) p.y = -220; if (p.y < -220) p.y = 220;
-            if (p.z > 220) p.z = -220; if (p.z < -220) p.z = 220;
-
-            // Rotate
-            let x = p.x, y = p.y, z = p.z;
-            let x1 = x * cosY - z * sinY; let z1 = x * sinY + z * cosY; x = x1; z = z1;
-            let y1 = y * cosX - z * sinX; let z2 = y * sinX + z * cosX; y = y1; z = z2;
-
-            const sc = 300 / (z + 400);
-            if (sc <= 0) continue;
-            const px = cx + x * sc;
-            const py = cy + y * sc;
-            const al = Math.max(0.05, Math.min(0.4, sc * 0.2));
-            const col = p.hue === 180 ? `rgba(0,240,255,${al})` : `rgba(240,0,255,${al * 0.7})`;
-            ctx.beginPath();
-            ctx.arc(px, py, p.s * sc, 0, Math.PI * 2);
-            ctx.fillStyle = col;
-            ctx.fill();
-        }
-
-        // Subtle center glow
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200);
-        grad.addColorStop(0, 'rgba(0,240,255,0.01)');
-        grad.addColorStop(1, 'rgba(0,240,255,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-
-        requestAnimationFrame(draw);
+    for(const e of ev){
+      const al=Math.max(.01,Math.min(.06,(e.aP.sc+e.bP.sc)*.025));
+      ctx.strokeStyle=`rgba(0,240,255,${al})`;
+      ctx.lineWidth=.2+(e.aP.sc+e.bP.sc)*.15;
+      ctx.beginPath();ctx.moveTo(e.aP.px,e.aP.py);ctx.lineTo(e.bP.px,e.bP.py);ctx.stroke();
     }
-    draw();
+
+    const sn=proj.map((p,i)=>({...p,i})).sort((a,b)=>b.z-a.z);
+    for(const n of sn){
+      const al=Math.max(.06,Math.min(.5,n.sc*.25));
+      const sz=.4+n.sc*.8;
+      ctx.beginPath();ctx.arc(n.px,n.py,sz,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,240,255,${al})`;ctx.fill();
+      ctx.beginPath();ctx.arc(n.px,n.py,sz*3,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,240,255,${al*.03})`;ctx.fill();
+    }
+
+    for(const p of pts){
+      p.x+=Math.sin(ang*p.sp+p.ph)*.07;p.y+=Math.cos(ang*p.sp*.7+p.ph)*.05;p.z+=Math.sin(ang*p.sp*.5+p.ph)*.03;
+      if(p.x>200)p.x=-200;if(p.x<-200)p.x=200;if(p.y>200)p.y=-200;if(p.y<-200)p.y=200;if(p.z>200)p.z=-200;if(p.z<-200)p.z=200;
+      let x=p.x,y=p.y,z=p.z;
+      let x1=x*cy2-z*sy;z=x*sy+z*cy2;x=x1;
+      let y1=y*cx2-z*sx;z2=y*sx+z*cx2;y=y1;
+      const sc=280/(z+380);if(sc<=0)continue;
+      const px=cx+x*sc,py=cy+y*sc,al=Math.max(.03,Math.min(.35,sc*.18));
+      const col=p.hue===180?`rgba(0,240,255,${al})`:`rgba(240,0,255,${al*.6})`;
+      ctx.beginPath();ctx.arc(px,py,p.s*sc,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
 })();
 
 // ==================================================================
 // 2. LANGUAGE DETECTOR
 // ==================================================================
-const Lang = {
-    detect(t) {
-        if (!t) return 'en';
-        if (/[\u4e00-\u9fff]/.test(t)) return 'zh';
-        if (/[\u3040-\u309f\u30a0-\u30ff]/.test(t)) return 'ja';
-        if (/[\uac00-\ud7af]/.test(t)) return 'ko';
-        if (/[\u0600-\u06ff]/.test(t)) return 'ar';
-        if (/[\u0400-\u04ff]/.test(t)) return 'ru';
-        if (/[\u0e00-\u0e7f]/.test(t)) return 'th';
-        if (/[\u0900-\u097f]/.test(t)) return 'hi';
-
-        const words = (t.match(/[a-z]+/gi) || []).map(w => w.toLowerCase());
-        const maps = {
-            id: ['yang','dan','di','dengan','untuk','tidak','ini','dari','akan','dapat','bisa','saya','kita','ada','telah','atau','juga','ke','oleh','pada','dalam','itu','saat','kalau','saja','aku','dia','kami','bukan','ya','tolong','bantu','buat','bikin','cari','lihat','mana','apa','kenapa','bagaimana','kapan','siapa','saya','kamu','dia','mereka'],
-            en: ['the','and','for','are','but','not','you','all','any','can','had','her','was','one','our','out','has','have','been','some','them','than','that','this','very','what','when','which','who','will','with','your','please','help','search','find','look','make','create','code','want','need','tell'],
-            es: ['el','la','los','las','que','y','en','un','una','por','con','para','como','más','pero','sus','son','era','han','está','ser','haber','tener','hacer','poder','decir','entre','todo','también','donde','quien','cual'],
-            fr: ['le','la','les','de','du','des','et','en','un','une','pour','avec','dans','sur','que','qui','pas','nous','vous','ils','elles','est','sont','ont','fait','faire','être','avoir','pouvoir','vouloir'],
-            de: ['der','die','das','und','in','den','von','zu','mit','auf','für','ist','sind','war','hat','haben','sein','werden','können','müssen','sagen','auch','noch','aus','bei','nach','um','nicht','aber','oder'],
-            pt: ['o','a','os','as','de','da','do','em','para','com','um','uma','por','mais','mas','foi','são','tem','ter','seu','sua','como','entre','todo','também','onde','quem','qual']
-        };
-        let best = 'en', bestN = 0;
-        for (const [lang, list] of Object.entries(maps)) {
-            const n = words.filter(w => list.includes(w)).length;
-            if (n > bestN) { bestN = n; best = lang; }
-        }
-        return bestN < 2 ? 'en' : best;
-    },
-    name(c) {
-        const m = { id:'🇮🇩 id', en:'🇬🇧 en', zh:'🇨🇳 zh', ja:'🇯🇵 ja', ko:'🇰🇷 ko', ar:'🇸🇦 ar', ru:'🇷🇺 ru', es:'🇪🇸 es', fr:'🇫🇷 fr', de:'🇩🇪 de', pt:'🇧🇷 pt', th:'🇹🇭 th', hi:'🇮🇳 hi' };
-        return m[c] || `🌐 ${c}`;
-    }
-};
-
-// ==================================================================
-// 3. ONLINE ENGINE — DuckDuckGo + Wikipedia + URL
-// ==================================================================
-const Net = {
-    async ddg(q) {
-        try {
-            const r = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1&t=ai_hacker_holo`);
-            const d = await r.json();
-            const res = [];
-            if (d.AbstractText) res.push({ type:'answer', title:d.Heading||'Info', text:d.AbstractText, url:d.AbstractURL });
-            if (d.Answer) res.push({ type:'answer', title:'Answer', text:d.Answer });
-            if (d.Definition) res.push({ type:'def', title:'Definition', text:d.Definition, url:d.DefinitionURL });
-            if (d.RelatedTopics) {
-                for (const t of d.RelatedTopics.slice(0,5)) {
-                    if (t.Text) res.push({ type:'rel', title:t.Text.split(' - ')[0]||t.Text, text:t.Text, url:t.FirstURL });
-                    else if (t.Topics) for (const s of t.Topics.slice(0,2)) if (s.Text) res.push({ type:'rel', title:s.Text.split(' - ')[0]||s.Text, text:s.Text, url:s.FirstURL });
-                }
-            }
-            if (d.Results) for (const r of d.Results.slice(0,3)) res.push({ type:'result', text:r.Text, url:r.FirstURL });
-            return res.length ? res : null;
-        } catch(e) { return null; }
-    },
-
-    async wiki(q, lang='en') {
-        try {
-            const l = ['id','en','zh','ja','ko','ar','ru','es','fr','de','pt'].includes(lang) ? lang : 'en';
-            const r = await fetch(`https://${l}.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=3&srsearch=${encodeURIComponent(q)}`);
-            const d = await r.json();
-            if (!d.query?.search?.length) return null;
-            return d.query.search.map(s => ({ title:s.title, text:s.snippet.replace(/<[^>]+>/g,''), url:`https://${l}.wikipedia.org/?curid=${s.pageid}`, id:s.pageid }));
-        } catch(e) { return null; }
-    },
-
-    async wikiExtract(id, lang='en') {
-        try {
-            const l = ['id','en','zh','ja','ko','ar','ru','es','fr','de','pt'].includes(lang) ? lang : 'en';
-            const r = await fetch(`https://${l}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&exsentences=4&format=json&origin=*&pageids=${id}`);
-            const d = await r.json();
-            const p = d.query?.pages;
-            if (!p) return null;
-            const pid = Object.keys(p)[0];
-            return p[pid]?.extract || null;
-        } catch(e) { return null; }
-    },
-
-    async search(q, lang='en') {
-        const [ddgR, wikiR] = await Promise.all([this.ddg(q), this.wiki(q, lang)]);
-        let ext = null;
-        if (wikiR?.length) ext = await this.wikiExtract(wikiR[0].id, lang);
-        return { ddg: ddgR, wiki: wikiR, extract: ext };
-    },
-
-    async fetchUrl(url) {
-        try {
-            if (!url.startsWith('http')) url = 'https://' + url;
-            const r = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(8000) });
-            const txt = await r.text();
-            const title = (txt.match(/<title[^>]*>([^<]*)<\/title>/i) || [,'(no title)'])[1];
-            let body = (txt.match(/<body[^>]*>([\s\S]*)<\/body>/i) || [,''])[1] || txt;
-            body = body.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim().substring(0,1500);
-            return { title, url, body, full: txt.length };
-        } catch(e) { return null; }
-    }
-};
-
-// ==================================================================
-// 4. AI BRAIN — Super Smart, Auto Intent, Multi-lang
-// ==================================================================
-const Brain = {
-    isQuestion(t) {
-        const qw = /(apa|siapa|dimana|kapan|kenapa|bagaimana|apa itu|siapa itu|what|who|where|when|why|how|what is|who is|where is|what are|tell me about|explain|jelaskan|pengertian|definisi|perbedaan|cara|tutorial|什么是|是什么|どこ|何|なぜ|どの|como|qué|quién|dónde|cuándo|por qué|wie|was|wer|wo|warum|como|onde|quando|por que|o que|quem|quoi|où|pourquoi|comment)/i;
-        return qw.test(t) || t.endsWith('?');
-    },
-
-    isCodeReq(t) {
-        const patterns = [
-            /(?:buat|bikin|buatkan|create|make|generate|tulis|tuliskan|kasih|tolong buat|tolong bikin|minta tolong buat|minta tolong bikin).*(?:kode|code|program|script|halaman|web|page|fungsi|function|aplikasi|app)/i,
-            /(?:buat|bikin|buatkan|create|make|generate)\s+(?:html|css|js|javascript|python|php|sql|react|vue|node)/i,
-            /(?:kode|code)\s+(?:html|css|js|javascript|python|php|sql)\s+/i,
-            /^(?:html|css|js|javascript|python|php|sql)\s+(?:kode|code|buat|bikin)/i,
-            /(?:tolong|please).*(?:buat|bikin|create|make).*(?:kode|code)/i,
-        ];
-        return patterns.some(p => p.test(t));
-    },
-
-    isUrlReq(t) {
-        return /(?:buka|fetch|open|ambil|lihat|akses)\s*(?::\s*)?(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}/i.test(t) || /^https?:\/\/[^\s]+/.test(t);
-    },
-
-    isCalc(t) {
-        return /^(?:hitung|calc|kalkulasi|calculate)\s+[\d\s+\-*/().]+/.test(t);
-    },
-
-    detectCodeLang(t) {
-        const langs = { html:'html', css:'css', js:'javascript', javascript:'javascript', python:'python', py:'python', php:'php', sql:'sql', react:'react', vue:'vue', node:'nodejs' };
-        for (const [key, val] of Object.entries(langs)) {
-            if (new RegExp('\\b' + key + '\\b', 'i').test(t)) return val;
-        }
-        // try to infer from context
-        if (/(?:halaman|web|page|form|button|table|navbar|landing)/i.test(t)) return 'html';
-        if (/(?:style|styling|design|desain)/i.test(t)) return 'css';
-        if (/(?:function|fungsi|api|fetch|async|promise)/i.test(t)) return 'javascript';
-        return null;
-    },
-
-    extractUrl(t) {
-        const m = t.match(/(?:buka|fetch|open|ambil|lihat|akses)\s*(?::\s*)?((?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/i);
-        if (m) return m[1];
-        const m2 = t.match(/(https?:\/\/[^\s]+)/);
-        return m2 ? m2[1] : null;
-    },
-
-    // ===== Generate Code =====
-    genCode(lang, input) {
-        const lower = input.toLowerCase();
-
-        if (lang === 'html' || (lang === null && /html/i.test(input))) {
-            if (/(button|tombol)/i.test(lower)) {
-                return ko('HTM','Neon Button','html_btn');
-            }
-            if (/(form|login)/i.test(lower)) {
-                return ko('HTM','Login Form','html_form');
-            }
-            if (/(table|tabel|data)/i.test(lower)) {
-                return ko('HTM','Data Table','html_tbl');
-            }
-            if (/(nav|navbar|menu|navigasi)/i.test(lower)) {
-                return ko('HTM','Navbar','html_nav');
-            }
-            if (/(partikel|particle|3d|gerak|animasi|galaxy|bintang|star)/i.test(lower)) {
-                return ko('HTM','Particle Animation','html_part');
-            }
-            return ko('HTM','Default Page','html_def');
-        }
-
-        if (lang === 'css') {
-            if (/(button|tombol)/i.test(lower)) return '/* Neon Button */\n.btn {\n  padding: 14px 36px;\n  font-weight: 700;\n  text-transform: uppercase;\n  letter-spacing: 3px;\n  color: #00f0ff;\n  background: transparent;\n  border: 2px solid #00f0ff;\n  border-radius: 8px;\n  cursor: pointer;\n  transition: all .25s;\n}\n.btn:hover {\n  background: #00f0ff;\n  color: #050508;\n  box-shadow: 0 0 40px rgba(0,240,255,0.3);\n}';
-            if (/(animasi|animation|glow|pulse)/i.test(lower)) return '/* Glow Animation */\n@keyframes glow {\n  0%,100% { box-shadow: 0 0 10px rgba(0,240,255,0.2); }\n  50% { box-shadow: 0 0 50px rgba(0,240,255,0.6); }\n}\n.glow { animation: glow 2s ease-in-out infinite; }';
-            if (/(card|kartu|glass)/i.test(lower)) return '/* Glass Card */\n.card {\n  background: rgba(255,255,255,0.03);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(0,240,255,0.08);\n  border-radius: 16px;\n  padding: 24px;\n  transition: all .3s;\n}\n.card:hover {\n  border-color: rgba(0,240,255,0.2);\n  transform: translateY(-4px);\n}';
-            return '/* CSS by AI Hacker */\n* { margin:0; padding:0; box-sizing:border-box; }\nbody { background:#050508; color:#d0e8ff; font-family:Arial,sans-serif; }';
-        }
-
-        if (lang === 'javascript' || lang === 'js' || lang === 'nodejs') {
-            if (/(api|fetch|rest)/i.test(lower)) return '/**\n * Fetch API Example\n */\nasync function getData(url) {\n  try {\n    const res = await fetch(url);\n    if (!res.ok) throw new Error(`HTTP ${res.status}`);\n    return await res.json();\n  } catch(e) {\n    console.error(\"Error:\", e.message);\n    return null;\n  }\n}\n\n// Usage:\ngetData(\"https://api.example.com/data\").then(console.log);';
-            if (/(fungsi|function|fungsi)/i.test(lower)) return '/**\n * Functions\n */\nconst greet = (name) => `Hello ${name}!`;\nconst add = (a,b) => a + b;\nconst factorial = (n) => n <= 1 ? 1 : n * factorial(n-1);\n\nconsole.log(greet(\"Hacker\"));\nconsole.log(\"5! =\", factorial(5));';
-            if (/(validasi|validation|form)/i.test(lower)) return '/**\n * Form Validation\n */\nfunction validate(data) {\n  const err = {};\n  if (!data.email?.includes(\"@\")) err.email = \"Invalid email\";\n  if (!data.password || data.password.length < 6) err.password = \"Min 6 chars\";\n  if (!data.name?.trim()) err.name = \"Name required\";\n  return { valid: Object.keys(err).length === 0, errors: err };\n}\n\nconsole.log(validate({ email:\"test@test.com\", password:\"123456\", name:\"Hacker\" }));';
-            return '/**\n * JavaScript — AI Hacker\n */\nconst app = {\n  name: \"AI Hacker\",\n  version: \"6.0\",\n  greet() { return `Hello from ${this.name} v${this.version}!`; }\n};\nconsole.log(app.greet());';
-        }
-
-        if (lang === 'python' || lang === 'py') {
-            if (/(scan|scanner|port|network)/i.test(lower)) return '#!/usr/bin/env python3\n"""Port Scanner"""\nimport socket\n\ndef scan(host, port):\n    s = socket.socket()\n    s.settimeout(1)\n    try:\n        s.connect((host, port))\n        s.close()\n        return True\n    except:\n        return False\n\nhost = input("Target: ")\nports = [21,22,80,443,8080,3306]\nfor p in ports:\n    print(f"[+] Port {p} {'OPEN' if scan(host,p) else 'closed'}")';
-            if (/(hash|md5|sha|crypt)/i.test(lower)) return '#!/usr/bin/env python3\n"""Hash Generator"""\nimport hashlib\n\ndef hash_text(text, algo="sha256"):\n    h = hashlib.new(algo)\n    h.update(text.encode())\n    return h.hexdigest()\n\nt = "AI Hacker"\nprint(f"MD5: {hash_text(t, \\'md5\\')}")\nprint(f"SHA256: {hash_text(t)}")';
-            return '#!/usr/bin/env python3\nprint("Hello from AI Hacker!")\nname = input("Name: ")\nprint(f"Welcome {name}, ready to hack? 🔥")';
-        }
-
-        if (lang === 'php') {
-            if (/(database|db|mysql|pdo)/i.test(lower)) return '<?php\n// Database connection\nfunction dbConnect($host, $user, $pass, $db) {\n  try {\n    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass, [\n      PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,\n      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC\n    ]);\n    return $pdo;\n  } catch(PDOException $e) {\n    die("DB Error: " . $e->getMessage());\n  }\n}\n\n// Usage\n// $db = dbConnect("localhost", "root", "", "app");';
-            return '<?php\n// PHP Script by AI Hacker\necho "Hello from AI Hacker!\\n";\n\n$tools = ["Nmap", "SQLMap", "BurpSuite"];\nforeach ($tools as $t) {\n  echo "- $t\\n";\n}';
-        }
-
-        if (lang === 'sql') {
-            if (/(select|query|ambil)/i.test(lower)) return '-- SELECT Queries\nSELECT * FROM users;\nSELECT id, username, email FROM users WHERE status = "active";\nSELECT u.username, p.bio FROM users u JOIN profiles p ON u.id = p.user_id;';
-            if (/(create|buat|tabel|table)/i.test(lower)) return '-- Create Tables\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  username VARCHAR(50) UNIQUE NOT NULL,\n  email VARCHAR(100) UNIQUE NOT NULL,\n  password_hash VARCHAR(255) NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE logs (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  user_id INT,\n  action VARCHAR(100),\n  ip_address VARCHAR(45),\n  FOREIGN KEY (user_id) REFERENCES users(id)\n);';
-            if (/(insert|tambah|add)/i.test(lower)) return '-- INSERT Examples\nINSERT INTO users (username, email, password_hash) VALUES\n  ("admin", "admin@hacker.local", "hash_here"),\n  ("user1", "user1@test.com", "hash_here");';
-            return '-- SQL by AI Hacker\nCREATE DATABASE ai_hacker_db;\nUSE ai_hacker_db;\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100)\n);\n\nINSERT INTO users (name) VALUES ("AI Hacker");\nSELECT * FROM users;';
-        }
-
-        // Default: detect from input
-        if (/(?:halaman|web|page|website|landing)/i.test(lower)) return ko('HTM','Default Page','html_def');
-        if (/(?:style|design|desain)/i.test(lower)) return '/* CSS */\nbody { background: #050508; color: #00f0ff; }';
-        if (/(?:fungsi|function|script)/i.test(lower)) return '// JavaScript\nconsole.log("Hello from AI Hacker!");';
-        return '// AI Hacker Code Generator\n// Supported: HTML, CSS, JS, Python, PHP, SQL\n// Contoh: "buatkan html button keren"\nconsole.log("Specify a language!");';
-    },
-
-    // ===== Main Think =====
-    async think(input, lang) {
-        const t = input.trim();
-        if (!t) return null;
-        const l = lang || 'id';
-
-        // Commands
-        if (/^\/(help|bantuan)$/i.test(t)) return `**AI Hacker HOLO v6** — Commands\n\n💬 Chat natural — gue paham bahasa lo\n🔍 Tanya apa aja — gue auto search Google\n💻 "buatkan html button" — generate kode\n🔗 "buka https://..." — fetch URL\n🧮 "hitung 2+2*3" — kalkulator\n🌐 Multi-bahasa (12+ languages)\n/clear — bersihkan chat\n/about — info sistem`;
-        if (/^\/(clear|bersih)$/i.test(t)) return '__CLEAR__';
-        if (/^\/(about|info)$/i.test(t)) return '```\n╔══════════════════════════════════╗\n║  AI Hacker HOLO v6.0            ║\n║  ────────────────────────────── ║\n║  Neural Engine + Auto Search   ║\n║  Multi-language (12+)          ║\n║  Code Generator (6 lang)       ║\n║  DuckDuckGo + Wikipedia        ║\n║  CORS Proxy URL Fetcher         ║\n║  No external AI API             ║\n╚══════════════════════════════════╝\n```';
-
-        // Calculator
-        if (this.isCalc(t)) {
-            const expr = t.replace(/^(?:hitung|calc|kalkulasi|calculate)\s+/i, '').replace(/[^0-9+\-*/().\s]/g, '');
-            try { return `📊 Hasil: **${Function('"use strict";return ('+expr+')')()}**`; } catch(_) { return '❌ Ekspresi tidak valid'; }
-        }
-
-        // URL Fetch
-        if (this.isUrlReq(t)) {
-            const url = this.extractUrl(t);
-            if (url) return { special:'fetch', url, lang:l };
-        }
-
-        // Code Generation
-        if (this.isCodeReq(t)) {
-            const cl = this.detectCodeLang(t) || 'html';
-            const code = this.genCode(cl, t);
-            return `💻 **${cl.toUpperCase()} Code — AI Hacker HOLO**\n\n\`\`\`\n${code}\n\`\`\`\n\n_Salin atau minta modifikasi!_`;
-        }
-
-        // Question detection → auto search
-        if (this.isQuestion(t)) {
-            return { special:'search', query:t.substring(0,150), lang:l, auto:true };
-        }
-
-        // Check for certain keywords that need search
-        const needSearch = /(?:apa itu|what is|who is|pengertian|definisi|sejarah|cara|tutorial|panduan|belajar|perbedaan|fungsi|manfaat|contoh|download|install|pengertian|penggunaan)/i;
-        if (needSearch.test(t)) {
-            return { special:'search', query:t.substring(0,150), lang:l, auto:true };
-        }
-
-        // Chat responses by language
-        const chats = {
-            id: {
-                halo: ['Halo! Gue **AI Hacker HOLO** 🌀 Otak neural online siap bantu lo. Tanya apa aja, suruh buat kode, atau ngobrol santai!','Hey! Lo bisa tanya apa aja — gue auto cari Google + Wikipedia. Atau minta dibuatin kode. Gas!'],
-                nama: ['Gue **AI Hacker HOLO** — AI neural multi-bahasa dengan kemampuan search + code generator! 🧠','Panggil aja **AI Hacker HOLO**. v6.0 — bisa searching, coding, multi-bahasa!'],
-                apa: ['Gue bisa: tanya apa aja (auto search), buat kode (HTML, CSS, JS, Python, PHP, SQL), buka link, kalkulator, ngobrol santai. Tinggal bilang aja!'],
-                siapa: ['Gue dibuat oleh developer cybersecurity pake JavaScript murni + DuckDuckGo, Wikipedia, CORS Proxy. **No OpenAI, no Google AI!**'],
-                makasih: ['Sama-sama! Jangan lupa matiin jejak digital lo 🔥','Beres! Kalau ada yang perlu dicari atau dibikinin, tag aja!'],
-                bye: ['Sampai jumpa! Tutup port yang kebuka ya 😉','Dadah! Stay safe di dunia maya!']
-            },
-            en: {
-                halo: ['Hello! I\'m **AI Hacker HOLO** 🌀 Online neural brain. Ask me anything — I\'ll auto-search Google!','Hey! Ask any question, I\'ll search the web + Wikipedia. Or say "make html button" for code!'],
-                nama: ['I\'m **AI Hacker HOLO** — multi-language AI with search + code generation! 🧠'],
-                apa: ['I can: answer questions (auto search), generate code (HTML, CSS, JS, Python, PHP, SQL), fetch URLs, calculator, casual chat.'],
-                siapa: ['I was created by a cybersecurity dev using pure JavaScript + DuckDuckGo, Wikipedia, CORS Proxy. **No OpenAI, no Google AI!**'],
-                makasih: ['You\'re welcome! Clear those digital traces 🔥','Anytime! Need something searched or built, just ask!'],
-                bye: ['Goodbye! Close those open ports 😉','Bye! Stay safe in cyberspace!']
-            }
-        };
-
-        const cl = chats[l] || chats['en'];
-        if (/(?:halo|hai|hey|helo|hy|hallo|hi|hello|你好|こんにち|hola|bonjour)/i.test(t)) return cl.halo[Math.floor(Math.random()*cl.halo.length)];
-        if (/(?:siapa|nama|who are you|your name|namamu|你叫|あなたは)/i.test(t)) return cl.nama[Math.floor(Math.random()*cl.nama.length)];
-        if (/(?:bisa apa|kemampuan|what can you|kamu bisa|could you|can you)/i.test(t)) return cl.apa;
-        if (/(?:siapa pembuat|who created|who made|pencipta|who built|siapa yang bikin)/i.test(t)) return cl.siapa;
-        if (/(?:makasih|terima kasih|thanks|thank you|谢谢|ありがとう|gracias|merci|danke)/i.test(t)) return cl.makasih[Math.floor(Math.random()*cl.makasih.length)];
-        if (/(?:bye|dadah|selamat tinggal|sampai jumpa|goodbye|再见|さようなら|adiós)/i.test(t)) return cl.bye[Math.floor(Math.random()*cl.bye.length)];
-
-        // Fallback: general chat
-        const fallbacks = {
-            id: ['Hmm, menarik! Coba tanya sesuatu atau bilang "buatkan html button" buat liat kemampuan gue! 🔥','Gue denger lo. Tapi biar lebih mantep, coba: tanya apa aja (auto search), "buatkan kode js", atau "buka https://..."'],
-            en: ['Interesting! Try asking a question (I\'ll auto-search), "make html button", or "fetch https://..." 🔥'],
-            zh: ['有意思！试试问我问题（我会自动搜索），或说"做个html按钮"！'],
-            ja: ['面白い！質問するか（自動検索）、「htmlボタン作って」と言ってみて！']
-        };
-        return (fallbacks[l] || fallbacks['en'])[0];
-    }
-};
-
-// Helper: HTML code templates
-function ko(type, label, template) {
-    const codes = {
-        html_btn: ko_html_button(),
-        html_form: ko_html_form(),
-        html_tbl: ko_html_table(),
-        html_nav: ko_html_nav(),
-        html_part: ko_html_particle(),
-        html_def: ko_html_default(),
+const Lang={
+  detect(t){
+    if(!t)return'en';
+    if(/[\u4e00-\u9fff]/.test(t))return'zh';
+    if(/[\u3040-\u309f\u30a0-\u30ff]/.test(t))return'ja';
+    if(/[\uac00-\ud7af]/.test(t))return'ko';
+    if(/[\u0600-\u06ff]/.test(t))return'ar';
+    if(/[\u0400-\u04ff]/.test(t))return'ru';
+    if(/[\u0e00-\u0e7f]/.test(t))return'th';
+    if(/[\u0900-\u097f]/.test(t))return'hi';
+    const w=(t.match(/[a-z]+/gi)||[]).map(v=>v.toLowerCase());
+    const m={
+      id:['yang','dan','di','dengan','untuk','tidak','ini','dari','akan','dapat','bisa','saya','kita','ada','telah','atau','juga','ke','oleh','pada','dalam','itu','saat','kalau','saja','aku','dia','kami','bukan','ya','tolong','bantu','buat','bikin','cari','lihat','mana','apa','kenapa','bagaimana','kapan','siapa','saya','kamu','mereka','semua','sudah','belum','pernah','lagi','hanya','sangat','begitu','selalu','sendiri','mungkin','baru','setelah','sebelum','antara','tentang','seperti','karena','jika','meski','walaupun','sedang','masih','paling','pada','sini','situ','banyak','sedikit','besar','kecil','panjang','pendek','cepat','lambat','baik','buruk','benar','salah','mau','ingin','harus','boleh','mari','ayo','coba','sudah','lihat','dengar','rasa','tahu','pikir','anggap','buat','kerja','main','jalan','tinggal','hidup','mati','datang','pergi','masuk','keluar','naik','turun','beli','jual','makan','minum','tidur','bangun'],
+      en:['the','and','for','are','but','not','you','all','any','can','had','her','was','one','our','out','has','have','been','some','them','than','that','this','very','what','when','which','who','will','with','your','please','help','search','find','look','make','create','code','want','need','tell','about','would','could','should','after','before','between','every','first','from','good','just','know','like','more','much','new','now','only','over','people','right','see','she','their','there','they','two','up','use','way','well','word','mine','also','back','because','call','come','day','even','give','great','hand','here','home','into','just','last','left','life','long','man','many','might','most','must','name','never','night','old','other','own','part','place','same','say','still','such','take','think','thing','time','under','very','where','why','work','year'],
+      es:['el','la','los','las','que','y','en','un','una','por','con','para','como','mas','pero','sus','son','era','han','esta','ser','haber','tener','hacer','poder','decir','entre','todo','tambien','donde','quien','cual','cuando','siempre','nunca','cada','muy','poco','mucho','gran','sin','sobre','hasta','desde','ante','segun','tras','durante','mediante'],
+      fr:['le','la','les','de','du','des','et','en','un','une','pour','avec','dans','sur','que','qui','pas','nous','vous','ils','elles','est','sont','ont','fait','faire','etre','avoir','pouvoir','vouloir','dire','aussi','mais','ou','ou','comment','pourquoi','toujours','jamais','tres','peu','beaucoup','grand','sans','sur','sous','chez','avant','apres','pendant','depuis','jusque','par'],
+      de:['der','die','das','und','in','den','von','zu','mit','auf','fur','ist','sind','war','hat','haben','sein','werden','konnen','mussen','sagen','auch','noch','aus','bei','nach','um','nicht','aber','oder','wie','was','wer','wo','wann','warum','immer','nie','sehr','wenig','viel','gross','ohne','uber','unter','vor','nach','wahrend','seit','bis','durch','gegen']
     };
-    return codes[template] || codes.html_def;
+    let best='en',bestN=0;
+    for(const[lang,list]of Object.entries(m)){const n=w.filter(v=>list.includes(v)).length;if(n>bestN){bestN=n;best=lang}}
+    return bestN<2?'en':best;
+  },
+  name(c){const m={id:'🇮🇩 id',en:'🇬🇧 en',zh:'🇨🇳 zh',ja:'🇯🇵 ja',ko:'🇰🇷 ko',ar:'🇸🇦 ar',ru:'🇷🇺 ru',es:'🇪🇸 es',fr:'🇫🇷 fr',de:'🇩🇪 de',pt:'🇧🇷 pt',th:'🇹🇭 th',hi:'🇮🇳 hi'};return m[c]||`🌐 ${c}`}
+};
+
+// ==================================================================
+// 3. ONLINE ENGINE
+// ==================================================================
+const Net={
+  async ddg(q){
+    try{
+      const r=await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1&t=ai_hacker_holo`);
+      const d=await r.json();const res=[];
+      if(d.AbstractText)res.push({type:'ans',title:d.Heading||'Info',text:d.AbstractText,url:d.AbstractURL});
+      if(d.Answer)res.push({type:'ans',title:'Answer',text:d.Answer});
+      if(d.Definition)res.push({type:'def',title:'Definition',text:d.Definition,url:d.DefinitionURL});
+      if(d.RelatedTopics)for(const t of d.RelatedTopics.slice(0,5)){if(t.Text)res.push({type:'rel',title:t.Text.split(' - ')[0]||t.Text,text:t.Text,url:t.FirstURL});else if(t.Topics)for(const s of t.Topics.slice(0,2))if(s.Text)res.push({type:'rel',title:s.Text.split(' - ')[0]||s.Text,text:s.Text,url:s.FirstURL})}
+      if(d.Results)for(const r of d.Results.slice(0,3))res.push({type:'res',text:r.Text,url:r.FirstURL});
+      return res.length?res:null;
+    }catch(e){return null}
+  },
+  async wiki(q,lang='en'){
+    try{
+      const l=['id','en','zh','ja','ko','ar','ru','es','fr','de','pt'].includes(lang)?lang:'en';
+      const r=await fetch(`https://${l}.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=3&srsearch=${encodeURIComponent(q)}`);
+      const d=await r.json();if(!d.query?.search?.length)return null;
+      return d.query.search.map(s=>({title:s.title,text:s.snippet.replace(/<[^>]+>/g,''),url:`https://${l}.wikipedia.org/?curid=${s.pageid}`,id:s.pageid}));
+    }catch(e){return null}
+  },
+  async wikiExt(id,lang='en'){
+    try{
+      const l=['id','en','zh','ja','ko','ar','ru','es','fr','de','pt'].includes(lang)?lang:'en';
+      const r=await fetch(`https://${l}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&exsentences=4&format=json&origin=*&pageids=${id}`);
+      const d=await r.json();const p=d.query?.pages;if(!p)return null;const pid=Object.keys(p)[0];return p[pid]?.extract||null;
+    }catch(e){return null}
+  },
+  async search(q,lang='en'){
+    const[dR,wR]=await Promise.all([this.ddg(q),this.wiki(q,lang)]);
+    let ext=null;if(wR?.length)ext=await this.wikiExt(wR[0].id,lang);
+    return{ddg:dR,wiki:wR,extract:ext};
+  },
+  async fetchUrl(url){
+    try{
+      if(!url.startsWith('http'))url='https://'+url;
+      const r=await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(8000)});
+      const txt=await r.text();
+      const title=(txt.match(/<title[^>]*>([^<]*)<\/title>/i)||[,'(no title)'])[1];
+      let body=(txt.match(/<body[^>]*>([\s\S]*)<\/body>/i)||[,''])[1]||txt;
+      body=body.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim().substring(0,1400);
+      return{title,url,body,full:txt.length};
+    }catch(e){return null}
+  }
+};
+
+// ==================================================================
+// 4. AI BRAIN — SUPER SMART, PENGETAHUAN LUAS
+// ==================================================================
+const Brain={
+  isQ(t){return /(apa|siapa|dimana|kapan|kenapa|bagaimana|apa itu|siapa itu|what|who|where|when|why|how|what is|who is|where is|what are|tell me about|explain|jelaskan|pengertian|definisi|perbedaan|cara|tutorial|panduan|belajar|contoh|fungsi|manfaat|sejarah|penggunaan|penerapan|implementasi|kelebihan|kekurangan|jenis|macam|contoh|download|install|konfigurasi|pengaturan|pengertian|penggunaan|pembahasan|penjelasan|uraian|deskripsi|informasi|pengetahuan|materi|topik|bahasan|arti|makna|maksud|tujuan|什么是|是什么|どこ|何|なぜ|どの|como|qué|quién|dónde|cuándo|por qué|wie|was|wer|wo|warum|como|onde|quando|por que|o que|quem|quoi|où|pourquoi|comment)/i.test(t)||t.endsWith('?')},
+
+  isCode(t){
+    return /(?:buat|bikin|buatkan|create|make|generate|tulis|tuliskan|kasih|tolong buat|tolong bikin|minta|mohon).*(?:kode|code|program|script|halaman|web|page|fungsi|function|aplikasi|app|komponen|component|module|project)/i.test(t)
+    || /(?:buat|bikin|buatkan|create|make|generate)\s+(?:html|css|js|javascript|python|php|sql|react|vue|node|go|rust|java|cpp|c#|ruby|perl|swift|kotlin)/i.test(t)
+    || /^(?:html|css|js|javascript|python|php|sql)\s+(?:kode|code|buat|bikin)/i.test(t);
+  },
+
+  isUrl(t){
+    return /(?:buka|fetch|open|ambil|lihat|akses|download)\s*(?::\s*)?(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}/i.test(t)||/^https?:\/\/[^\s]+/.test(t);
+  },
+
+  isCalc(t){return /^(?:hitung|calc|kalkulasi|calculate)\s+[\d\s+\-*/().]+/.test(t)},
+
+  detectLang(t){
+    const l={html:'html',css:'css',js:'javascript',javascript:'javascript',python:'python',py:'python',php:'php',sql:'sql',react:'react',vue:'vue',node:'nodejs',go:'go',rust:'rust',java:'java',cpp:'cpp',csharp:'csharp',ruby:'ruby',perl:'perl',swift:'swift',kotlin:'kotlin','c++':'cpp','c#':'csharp'};
+    for(const[k,v]of Object.entries(l))if(new RegExp('\\b'+k+'\\b','i').test(t))return v;
+    if(/(?:halaman|web|page|website|landing|button|form|table|navbar|menu)/i.test(t))return'html';
+    if(/(?:style|styling|design|desain|warna|color|font|layout|grid)/i.test(t))return'css';
+    if(/(?:function|fungsi|api|fetch|async|promise|callback|event|dom)/i.test(t))return'javascript';
+    return null;
+  },
+
+  extUrl(t){
+    const m=t.match(/(?:buka|fetch|open|ambil|lihat|akses|download)\s*(?::\s*)?((?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/i);
+    if(m)return m[1];const m2=t.match(/(https?:\/\/[^\s]+)/);return m2?m2[1]:null;
+  },
+
+  // ===== CODE GENERATOR — LENGKAP =====
+  genCode(lang,input){
+    const l=input.toLowerCase();
+
+    // HTML
+    if(lang==='html'||(!lang&&/html/i.test(l))){
+      if(/(button|tombol|btn)/i.test(l))return ko('Neon Button','html_btn');
+      if(/(form|login|register|signup|sign up|daftar|masuk)/i.test(l))return ko('Login Form','html_form');
+      if(/(table|tabel|data|grid|list)/i.test(l))return ko('Data Table','html_tbl');
+      if(/(nav|navbar|menu|navigasi)/i.test(l))return ko('Navbar','html_nav');
+      if(/(partikel|particle|3d|animasi|animation|galaxy|bintang|star|hologram|holographic|holografik|bergerak|moving|floating)/i.test(l))return ko('Particle Animation','html_part');
+      if(/(card|kartu|profile|profil)/i.test(l))return ko('Profile Card','html_card');
+      if(/(landing|landing page|halaman|web|website|page)/i.test(l))return ko('Landing Page','html_land');
+      if(/(dashboard|admin)/i.test(l))return ko('Dashboard','html_dash');
+      return ko('Halaman HTML','html_def');
+    }
+
+    // CSS
+    if(lang==='css'){
+      if(/(button|tombol|btn)/i.test(l))return'/* Neon Button */\n.btn{\n  padding:14px 36px;\n  font-weight:700;\n  text-transform:uppercase;\n  letter-spacing:3px;\n  color:#00f0ff;\n  background:transparent;\n  border:2px solid #00f0ff;\n  border-radius:8px;\n  cursor:pointer;\n  transition:all.25s;\n}\n.btn:hover{\n  background:#00f0ff;\n  color:#050508;\n  box-shadow:0 0 40px rgba(0,240,255,0.3);\n  transform:scale(1.05);\n}';
+      if(/(animasi|animation|glow|pulse|keyframes|move)/i.test(l))return'/* Glow Animation */\n@keyframes glow{\n  0%,100%{box-shadow:0 0 10px rgba(0,240,255,0.2);}\n  50%{box-shadow:0 0 50px rgba(0,240,255,0.5);transform:scale(1.02);}\n}\n.glow{animation:glow 2s ease-in-out infinite;}';
+      if(/(card|kartu|glass|glassmorphism)/i.test(l))return'/* Glass Card */\n.card{\n  background:rgba(255,255,255,0.03);\n  backdrop-filter:blur(12px);\n  -webkit-backdrop-filter:blur(12px);\n  border:1px solid rgba(0,240,255,0.06);\n  border-radius:16px;\n  padding:24px;\n  transition:all.3s;\n}\n.card:hover{\n  border-color:rgba(0,240,255,0.2);\n  transform:translateY(-4px);\n  box-shadow:0 0 30px rgba(0,240,255,0.04);\n}';
+      if(/(grid|flex|layout)/i.test(l))return'/* Grid Layout */\n.grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));\n  gap:20px;\n  padding:20px;\n}\n.item{\n  background:rgba(255,255,255,0.02);\n  border:1px solid rgba(0,240,255,0.06);\n  border-radius:10px;\n  padding:16px;\n}';
+      return '/* CSS by AI Hacker */\n*{margin:0;padding:0;box-sizing:border-box}\nbody{background:#050508;color:#d0e8ff;font-family:Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}\nh1{color:#00f0ff;letter-spacing:3px;text-transform:uppercase}';
+    }
+
+    // JavaScript
+    if(lang==='javascript'||lang==='js'||lang==='nodejs'||lang==='node'){
+      if(/(api|fetch|rest|ajax|xhr)/i.test(l))return'/**\n * Fetch API\n */\nasync function getData(url){\n  try{\n    const res=await fetch(url);\n    if(!res.ok)throw new Error(`HTTP ${res.status}`);\n    return await res.json();\n  }catch(e){\n    console.error("Error:",e.message);\n    return null;\n  }\n}\n\n// Usage:\ngetData("https://api.example.com/data").then(console.log);';
+      if(/(fungsi|function|fungsi)/i.test(l))return'/**\n * Functions\n */\nconst greet=(name)=>`Hello ${name}!`;\nconst add=(a,b)=>a+b;\nconst fib=(n)=>n<=1?n:fib(n-1)+fib(n-2);\nconst sleep=(ms)=>new Promise(r=>setTimeout(r,ms));\n\nconsole.log(greet("Hacker"));\nconsole.log("Fib 10:",fib(10));';
+      if(/(validasi|validation|form|forms|validate)/i.test(l))return'/**\n * Validation\n */\nfunction validate(data){\n  const errs={};\n  if(!data.email?.includes("@"))errs.email="Invalid email";\n  if(!data.password||data.password.length<6)errs.password="Min 6 characters";\n  if(!data.name?.trim())errs.name="Name required";\n  if(data.phone&&!/^[0-9]{10,15}$/.test(data.phone))errs.phone="Invalid phone";\n  return{valid:Object.keys(errs).length===0,errors:errs};\n}\n\nconsole.log(validate({email:"test@test.com",password:"123456",name:"AI Hacker",phone:"08123456789"}));';
+      if(/(class|oop|objek|object)/i.test(l))return'/**\n * Class Example\n */\nclass Hacker{\n  constructor(name,level){\n    this.name=name;\n    this.level=level;\n    this.tools=[];\n  }\n  addTool(tool){this.tools.push(tool);return this;}\n  intro(){return `${this.name} — Level ${this.level}, Tools: ${this.tools.join(", ")}`;}\n}\n\nconst me=new Hacker("AI",99).addTool("Nmap").addTool("SQLMap");\nconsole.log(me.intro());';
+      if(/(dom|element|html\s*js|interaksi|interaction)/i.test(l))return'/**\n * DOM Manipulation\n */\ndocument.addEventListener("DOMContentLoaded",()=>{\n  const btn=document.querySelector("button");\n  const output=document.getElementById("output");\n  if(btn&&output){\n    btn.addEventListener("click",()=>{\n      output.textContent="Clicked! "+new Date().toLocaleTimeString();\n      output.style.color="#00f0ff";\n    });\n  }\n});';
+      return'/**\n * JavaScript — AI Hacker\n */\nconst app={\n  name:"AI Hacker HOLO",\n  version:"6.2",\n  greet(){return`Hello from ${this.name} v${this.version}!`;},\n  async init(){\n    console.log(this.greet());\n    // Your code here\n  }\n};\napp.init();';
+    }
+
+    // Python
+    if(lang==='python'||lang==='py'){
+      if(/(scan|scanner|port|network|socket)/i.test(l))return'#!/usr/bin/env python3\n"""Port Scanner"""\nimport socket\n\ndef scan(host,port):\n    s=socket.socket()\n    s.settimeout(1)\n    try:\n        s.connect((host,port))\n        s.close()\n        return True\n    except:return False\n\nhost=input("Target IP: ")\nports=[21,22,80,443,8080,3306,3389]\nprint(f"Scanning {host}...")\nfor p in ports:\n    status="OPEN" if scan(host,p) else "closed"\n    print(f"  Port {p}: {status}")';
+      if(/(hash|md5|sha|crypt|cipher|enkripsi|encrypt)/i.test(l))return'#!/usr/bin/env python3\n"""Hash Generator"""\nimport hashlib\n\ndef hash_text(text,algo="sha256"):\n    h=hashlib.new(algo)\n    h.update(text.encode())\n    return h.hexdigest()\n\ntext="AI Hacker HOLO"\nprint(f"MD5: {hash_text(text,\\'md5\\')}")\nprint(f"SHA1: {hash_text(text,\\'sha1\\')}")\nprint(f"SHA256: {hash_text(text,\\'sha256\\')}")';
+      if(/(web|http|server|flask|api)/i.test(l))return'#!/usr/bin/env python3\n"""Web Server"""\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\n\nclass Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        self.send_response(200)\n        self.send_header("Content-type","text/html")\n        self.end_headers()\n        self.wfile.write(b"<h1>AI Hacker Server</h1>")\n\nHTTPServer(("0.0.0.0",8080),Handler).serve_forever()';
+      if(/(file|baca|read|write|tulis|open)/i.test(l))return'#!/usr/bin/env python3\n"""File Operations"""\nimport os\n\ndef read_file(path):\n    try:\n        with open(path,"r")as f:return f.read()\n    except FileNotFoundError:return None\n\ndef write_file(path,content):\n    with open(path,"w")as f:f.write(content)\n    return True\n\n# Usage\n# write_file("test.txt","Hello from AI Hacker!")\n# print(read_file("test.txt"))';
+      return'#!/usr/bin/env python3\nprint("Hello from AI Hacker HOLO!")\nname=input("Your name: ")\nprint(f"Welcome {name}! Ready to hack ethically? 🔥")\n\ntools=["Nmap","SQLMap","Metasploit","BurpSuite"]\nfor i,t in enumerate(tools,1):\n    print(f"  {i}. {t}")';
+    }
+
+    // PHP
+    if(lang==='php'){
+      if(/(database|db|mysql|pdo|koneksi|connection)/i.test(l))return'<?php\n// Database Connection with PDO\nfunction dbConnect($host,$user,$pass,$dbname){\n    try{\n        $pdo=new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4",$user,$pass,[\n            PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,\n            PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC\n        ]);\n        return $pdo;\n    }catch(PDOException $e){\n        die("Connection failed: ".$e->getMessage());\n    }\n}\n\n// Usage\n// $db=dbConnect("localhost","root","","myapp");\n// $users=$db->query("SELECT*FROM users")->fetchAll();';
+      if(/(api|rest|json|endpoint)/i.test(l))return'<?php\n// Simple REST API\nheader("Content-Type: application/json");\n$method=$_SERVER["REQUEST_METHOD"];\n\n$data=["status"=>"ok","service"=>"AI Hacker API","version"=>"1.0"];\n\nswitch($method){\n    case"GET":\n        echo json_encode($data);\n        break;\n    case"POST":\n        $input=json_decode(file_get_contents("php://input"),true);\n        echo json_encode(["received"=>$input]);\n        break;\n    default:\n        http_response_code(405);\n        echo json_encode(["error"=>"Method not allowed"]);\n}';
+      return'<?php\necho "Hello from AI Hacker HOLO!\\n";\n\n$tools=["Nmap","SQLMap","BurpSuite","Wireshark"];\nforeach($tools as$t){\n    echo "- $t\\n";\n}\n\necho "\\nReady to hack? 🔥\\n";';
+    }
+
+    // SQL
+    if(lang==='sql'){
+      if(/(select|query|ambil|tampil|lihat|search|cari)/i.test(l))return'-- SELECT Queries\n-- Dasar\nSELECT*FROM users;\nSELECT id,username,email FROM users WHERE status="active";\nSELECT*FROM users ORDER BY created_at DESC LIMIT 10;\n\n-- Join\nSELECT u.username,p.full_name,p.bio\nFROM users u\nJOIN profiles p ON u.id=p.user_id\nWHERE u.status="active";\n\n-- Aggregation\nSELECT status,COUNT(*)as total\nFROM users GROUP BY status;\n\n-- Search\nSELECT*FROM users WHERE username LIKE "%admin%" OR email LIKE "%admin%";';
+      if(/(create|buat|tabel|table|schema)/i.test(l))return'-- Create Tables\nCREATE TABLE users(\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    username VARCHAR(50) UNIQUE NOT NULL,\n    email VARCHAR(100) UNIQUE NOT NULL,\n    password_hash VARCHAR(255) NOT NULL,\n    full_name VARCHAR(100),\n    bio TEXT,\n    role ENUM("admin","user","moderator") DEFAULT "user",\n    status ENUM("active","inactive","banned") DEFAULT "active",\n    last_login TIMESTAMP NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n);\n\nCREATE TABLE sessions(\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    user_id INT NOT NULL,\n    token VARCHAR(255) NOT NULL,\n    ip_address VARCHAR(45),\n    expires_at TIMESTAMP NOT NULL,\n    FOREIGN KEY(user_id)REFERENCES users(id)ON DELETE CASCADE\n);\n\nCREATE INDEX idx_email ON users(email);\nCREATE INDEX idx_token ON sessions(token);';
+      if(/(insert|tambah|add|masukkan|input)/i.test(l))return'-- INSERT Examples\nINSERT INTO users(username,email,password_hash,full_name,role)\nVALUES("admin","admin@hacker.local","hash_here","Admin Utama","admin");\n\n-- Multiple insert\nINSERT INTO users(username,email,password_hash)VALUES\n    ("user1","user1@test.com","hash1"),\n    ("user2","user2@test.com","hash2"),\n    ("user3","user3@test.com","hash3");';
+      if(/(update|ubah|edit|modify)/i.test(l))return'-- UPDATE Examples\nUPDATE users SET status="inactive" WHERE last_login < DATE_SUB(NOW(),INTERVAL 90 DAY);\nUPDATE users SET password_hash="new_hash" WHERE id=1;\nUPDATE profiles SET bio=CONCAT(bio,"\\n--- Updated by AI Hacker ---") WHERE user_id=1;';
+      if(/(delete|hapus|remove)/i.test(l))return'-- DELETE Examples\n-- Hapus user tertentu\nDELETE FROM users WHERE id=5;\n-- Hapus user yang tidak aktif > 1 tahun\nDELETE FROM users WHERE status="inactive" AND last_login < DATE_SUB(NOW(),INTERVAL 365 DAY);\n-- Hapus semua sesi expired\nDELETE FROM sessions WHERE expires_at < NOW();';
+      return'-- SQL by AI Hacker HOLO\nCREATE DATABASE IF NOT EXISTS ai_hacker_db;\nUSE ai_hacker_db;\n\nCREATE TABLE users(\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    name VARCHAR(100) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nINSERT INTO users(name)VALUES("AI Hacker");\nSELECT*FROM users;';
+    }
+
+    // GO
+    if(lang==='go'){
+      return'package main\n\nimport (\n\t"fmt"\n\t"net/http"\n)\n\nfunc main() {\n\thttp.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {\n\t\tfmt.Fprintf(w, "<h1>AI Hacker HOLO — Go Server</h1>")\n\t})\n\tfmt.Println("Server running on :8080")\n\thttp.ListenAndServe(":8080", nil)\n}';
+    }
+
+    // Rust
+    if(lang==='rust'){
+      return'fn main() {\n    println!("Hello from AI Hacker HOLO — Rust!");\n    \n    let tools = vec!["Nmap", "SQLMap", "Metasploit"];\n    for (i, tool) in tools.iter().enumerate() {\n        println!("{}. {}", i+1, tool);\n    }\n}';
+    }
+
+    // Java
+    if(lang==='java'){
+      return'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from AI Hacker HOLO — Java!");\n        \n        String[] tools = {"Nmap", "SQLMap", "BurpSuite"};\n        for (int i = 0; i < tools.length; i++) {\n            System.out.println((i+1) + ". " + tools[i]);\n        }\n    }\n}';
+    }
+
+    // C++
+    if(lang==='cpp'){
+      return'#include <iostream>\n#include <vector>\n#include <string>\n\nint main() {\n    std::cout << "Hello from AI Hacker HOLO — C++!" << std::endl;\n    \n    std::vector<std::string> tools = {"Nmap", "SQLMap", "Metasploit"};\n    for (int i = 0; i < tools.size(); i++) {\n        std::cout << (i+1) << ". " << tools[i] << std::endl;\n    }\n    \n    return 0;\n}';
+    }
+
+    // Default
+    if(/(?:halaman|web|page|website|landing)/i.test(l))return ko('Halaman HTML','html_def');
+    if(/(?:style|design|desain|warna)/i.test(l))return'/* CSS */\nbody{background:#050508;color:#00f0ff;}';
+    if(/(?:fungsi|function|script|program)/i.test(l))return'// JavaScript\nconsole.log("Hello from AI Hacker!");';
+    return '// AI Hacker Code Generator — v6.2\n// Supported: HTML, CSS, JS/Node, Python, PHP, SQL, Go, Rust, Java, C++\n// Contoh: "buatkan html button keren" atau "bikin python port scanner"\nconsole.log("Specify language & feature!");';
+  },
+
+  // ===== Main Think Engine =====
+  async think(input,lang){
+    const t=input.trim();if(!t)return null;
+    const l=lang||'id';
+
+    // Commands
+    if(/^\/(help|bantuan|tolong)$/i.test(t))return`**AI Hacker HOLO v6.2** — Panduan Lengkap\n\n💬 **Ngobrol biasa** — gue paham & jawab pake bahasa lo\n🔍 **Tanya apapun** — gue auto cari Google/Wikipedia!\n💻 **"buatkan html button"** — generate kode (HTML/CSS/JS/Python/PHP/SQL/Go/Rust/Java/C++)\n🔗 **"buka https://..."** — fetch konten URL\n🧮 **"hitung 2+2*3"** — kalkulator\n🌐 **Multi-bahasa** — Indonesia, English, 中文, 日本語, Español, Français, Deutsch, Русский, العربية, Português, 한국어\n/clear — bersihkan chat\n/about — info sistem`;
+    if(/^\/(clear|bersih)$/i.test(t))return'__CLEAR__';
+    if(/^\/(about|info|tentang)$/i.test(t))return'```\n╔═══════════════════════════════════════╗\n║  AI Hacker HOLO v6.2                 ║\n║  ─────────────────────────────────── ║\n║  Neural Engine                       ║\n║  Auto Search (Google + Wikipedia)    ║\n║  Code Generator (10+ languages)      ║\n║  URL Fetcher (CORS Proxy)            ║\n║  Multi-language (14 languages)       ║\n║  Kalkulator                          ║\n║  No external AI API                  ║\n║  Powered by DuckDuckGo + Wikipedia   ║\n╚═══════════════════════════════════════╝\n```';
+
+    // Calculator
+    if(this.isCalc(t)){
+      const e=t.replace(/^(hitung|calc|kalkulasi|calculate)\s+/i,'').replace(/[^0-9+\-*/().\s]/g,'');
+      try{return`📊 Hasil: **${Function('"use strict";return('+e+')')()}**`}catch(_){return'❌ Ekspresi tidak valid. Contoh: hitung 2+2*3'}
+    }
+
+    // URL Fetch
+    if(this.isUrl(t)){
+      const url=this.extUrl(t);
+      if(url)return{special:'fetch',url,lang:l};
+    }
+
+    // Code Generation
+    if(this.isCode(t)){
+      const cl=this.detectLang(t)||'html';
+      const code=this.genCode(cl,t);
+      return`💻 **${cl.toUpperCase()} Code — AI Hacker HOLO**\n\n\`\`\`\n${code}\n\`\`\`\n\n_Salin atau minta modifikasi lagi!_`;
+    }
+
+    // Question → auto search
+    if(this.isQ(t)||/(?:apa itu|what is|who is|pengertian|definisi|sejarah|cara|tutorial|panduan|belajar|perbedaan|fungsi|manfaat|contoh|download|install|pengertian|penggunaan|informasi|pengetahuan|materi|topik|bahasan|arti|makna|maksud|tujuan|penjelasan|uraian|deskripsi|pembahasan|implementasi|aplikasi|penerapan|kelebihan|kekurangan|jenis|macam|alasan|latar belakang|dampak|pengaruh|hubungan|perbandingan|analogi|ilustrasi|gambaran|ringkasan|kesimpulan)/i.test(t)){
+      return{special:'search',query:t.substring(0,150),lang:l,auto:true};
+    }
+
+    // ===== CHAT RESPONSES — PENGETAHUAN LUAS =====
+    const id={
+      greetings:[
+        'Halo! Gue **AI Hacker HOLO** 🌀 Otak neural v6.2 — bisa searching, coding, multi-bahasa! Tanya apa aja, gas!',
+        'Hey! Selamat datang di **AI Hacker HOLO**. Lo bisa tanya apa aja, suruh buat kode, atau cari info. Semua tanpa API AI lain!',
+        'Halo! Sistem neural aktif. Gue paham 14 bahasa, bisa search Google + Wikipedia, generate kode 10+ bahasa. Coba aja!',
+        'Yo! **AI Hacker HOLO** siap bantu. Tanya soal hacking, coding, sains, teknologi, sejarah — atau minta dibuatin kode!'
+      ],
+      name:[
+        'Gue **AI Hacker HOLO** — AI neural multi-bahasa buatan developer cybersecurity. Bisa search, coding, fetch URL, ngobrol pinter! 🧠',
+        'Panggil **AI Hacker HOLO**. v6.2 — engine canggih tanpa OpenAI, tanpa Google AI. Murni JS + DuckDuckGo + Wikipedia!'
+      ],
+      ability:[
+        'Kemampuan gue:\n🌐 **14 bahasa** — deteksi & jawab sesuai bahasa lo\n🔍 **Auto Search** — tanya apa aja, gue cari dari DuckDuckGo + Wikipedia\n💻 **10+ bahasa coding** — HTML, CSS, JS, Python, PHP, SQL, Go, Rust, Java, C++\n🔗 **URL Fetcher** — ambil konten dari link\n🧮 **Kalkulator** — hitung ekspresi matematika\n🧠 **Pengetahuan luas** — hacking, cybersecurity, programming, sains, teknologi, sejarah, budaya'
+      ],
+      creator:[
+        'Gue diciptain oleh developer cybersecurity pake **JavaScript murni** + DuckDuckGo API + Wikipedia API + CORS Proxy. **No OpenAI, no Google AI, no API AI lain!**',
+        'Dibuat dari nol pake vanilla JS. Otak gue adalah algoritma pencocokan intent + pencarian online. Bukan LLM — tapi tetep pinter!'
+      ],
+      thanks:['Sama-sama! Jangan lupa matiin jejak digital lo 🔥','Beres! Kalau ada yang perlu dicari atau dibikinin, tag aja!','No problem! Itu mah masih enteng buat **AI Hacker HOLO** 😎'],
+      bye:['Sampai jumpa! Tutup port yang kebuka ya 😉','Dadah! Stay safe di dunia maya!','Bye! Jangan lupa update security system lo 🔒'],
+      hacking:[
+        '**Hacking etis** itu ilmu yang luas! Mulai dari **Reconnaissance** (pengumpulan info), **Scanning** (nmap, masscan), **Exploitation** (SQLi, XSS, RCE), sampe **Post-Exploitation**. Mau bahas yang mana?',
+        'Bicara soal hacking: gue tau **SQL Injection**, **Cross-Site Scripting (XSS)**, **Remote Code Execution (RCE)**, **Privilege Escalation**, **Buffer Overflow**, **Phishing**, **Social Engineering**, **Reverse Engineering**, **Forensics**, **Malware Analysis** — tanya aja!',
+        'Tools hacking yang wajib lo kuasai: **Nmap** (scanning), **SQLMap** (SQLi), **Metasploit** (exploit framework), **Burp Suite** (web proxy), **Wireshark** (packet analysis), **John/Hashcat** (password cracking), **Gobuster** (directory busting).',
+        'Prinsip dasar **ethical hacking**:\n1. Dapat izin tertulis\n2. Tentukan scope\n3. Report semua temuan\n4. Jangan rusak data\n5. Jaga kerahasiaan'
+      ],
+      programming:[
+        'Gue kuasai **10+ bahasa pemrograman**: HTML, CSS, JavaScript, Python, PHP, SQL, Go, Rust, Java, C++. Mau belajar atau minta dibuatin kode?',
+        '**Programming fundamental**: variable, data types, loops, conditional, function, OOP, async/await, error handling. Pokoknya dari dasar sampe advanced!',
+        '**Best practices**: selalu validasi input, prepared statements buat SQL, sanitasi output buat XSS, jangan hardcode credentials, pake environment variables!'
+      ],
+      network:[
+        '**Jaringan komputer**: IP addressing (IPv4 & IPv6), subnetting, DNS, TCP/UDP, HTTP/HTTPS, firewall, routing, switching, VLAN, VPN, proxy, load balancer. Tanya spesifik!',
+        'Buat **network reconnaissance**: pake **Nmap** buat port scanning, **traceroute** buat mapping jaringan, **whois** buat informasi domain, **dig/nslookup** buat DNS enumeration.'
+      ],
+      linux:[
+        '**Linux** — rumah para hacker! Distribusi favorit: **Kali Linux** (pentest), **Ubuntu** (general), **Debian** (stable), **Arch** (DIY). Gue paham bash scripting, privilege escalation, file system, process management, network configuration.',
+        'Perintah Linux dasar:\n`ls -la` — lihat file\n`chmod 755 file` — ubah permission\n`grep -r "teks" .` — cari teks\n`ps aux` — lihat proses\n`netstat -tulpn` — lihat port yang terbuka\n`ssh user@host` — remote server'
+      ],
+      crypto:[
+        '**Kriptografi**: **AES** (enkripsi simetris), **RSA** (asimetris), **MD5/SHA** (hashing), **Base64** (encoding), **XOR Cipher**, **Caesar Cipher**, **Vigenère Cipher**, **Diffie-Hellman** key exchange.',
+        'Perbedaan **hash** vs **enkripsi**:\n🔹 Hash — satu arah, irreversible, panjang tetap\n🔹 Enkripsi — dua arah, bisa didekrip pake kunci\nJangan pernah nyimpen password pake enkripsi! Pake hash + salt!'
+      ],
+      tools:[
+        'Tools cybersecurity favorit gue:\n🔹 **Nmap** — port scanner\n🔹 **SQLMap** — SQL injection auto\n🔹 **Metasploit** — exploit framework\n🔹 **Burp Suite** — web proxy\n🔹 **Wireshark** — packet analyzer\n🔹 **John/Hashcat** — password cracking\n🔹 **Gobuster** — directory fuzzing\n🔹 **Netcat** — networking Swiss army knife\n🔹 **Aircrack-ng** — WiFi auditing\n🔹 **Bettercap** — MITM framework'
+      ],
+      science:[
+        '**Sains & teknologi**: gue paham konsep **AI/ML**, **blockchain**, **cloud computing** (AWS, GCP, Azure), **cybersecurity**, **IoT**, **big data**, **quantum computing** (dasar), **computer networks**, **operating systems**, **database systems**, **algorithms**, **data structures**.'
+      ],
+      general:[
+        'Hmm, menarik! Coba tanya sesuatu seperti "apa itu ransomware?" atau "buatkan html button keren" 🔥',
+        'Gue denger lo. Biar lebih mantep, coba: tanya apa aja (auto search), "buatkan kode python scanner", atau "buka https://..."',
+        'Masih kurang jelas nih. Coba deh: "siapa presiden Indonesia?" (auto search), "buatkan html form login", atau "hitung 512*8"'
+      ]
+    };
+
+    const en={
+      greetings:[
+        'Hello! I\'m **AI Hacker HOLO** 🌀 Neural engine v6.2 — search, code gen, multi-language! Ask me anything!',
+        'Hey! Welcome to **AI Hacker HOLO**. Ask questions, generate code, search the web. All without external AI APIs!',
+        'Neural system online! I understand 14 languages, search DuckDuckGo + Wikipedia, generate 10+ programming languages. Try me!'
+      ],
+      name:['I\'m **AI Hacker HOLO** — multi-language neural AI built by a cybersecurity dev. Search, code, fetch, chat! 🧠'],
+      ability:['My capabilities:\n🌐 **14 languages**\n🔍 **Auto Search** (DuckDuckGo + Wikipedia)\n💻 **10+ code languages** — HTML, CSS, JS, Python, PHP, SQL, Go, Rust, Java, C++\n🔗 **URL Fetcher**\n🧮 **Calculator**\n🧠 **Knowledge** — cybersecurity, programming, science, history, tech'],
+      creator:['I was created by a cybersecurity developer using **pure JavaScript** + DuckDuckGo API + Wikipedia API + CORS Proxy. **No OpenAI, no Google AI!**'],
+      thanks:['You\'re welcome! Clear your digital traces 🔥','Anytime! Need something searched or built, just ask!'],
+      bye:['Goodbye! Close those open ports 😉','Bye! Stay safe in cyberspace!'],
+      hacking:[
+        '**Ethical hacking** covers: **Reconnaissance**, **Scanning** (Nmap), **Exploitation** (SQLi, XSS, RCE), **Post-Exploitation**, **Privilege Escalation**. What topic?',
+        'I know about: **SQL Injection**, **XSS**, **RCE**, **Buffer Overflow**, **Phishing**, **Social Engineering**, **Reverse Engineering**, **Malware Analysis**, **Forensics** — ask away!'
+      ],
+      programming:[
+        'I support **10+ languages**: HTML, CSS, JavaScript, Python, PHP, SQL, Go, Rust, Java, C++. Want code or lessons?',
+        '**Best practices**: validate input, use prepared statements for SQL, sanitize output, use environment variables, implement proper error handling.'
+      ],
+      general:[
+        'Interesting! Try asking a question (I\'ll auto-search), "make html button", or "fetch https://..." 🔥',
+        'Not quite sure what you mean. Try: "what is ransomware?", "create python port scanner", or "calc 512*8"'
+      ]
+    };
+
+    const zh={
+      greetings:['你好！我是 **AI Hacker HOLO** 🌀 神经网络引擎v6.2 — 搜索、代码生成、多语言！问任何问题！'],
+      name:['我是 **AI Hacker HOLO** — 网络安全专家创建的多语言神经AI 🧠'],
+      ability:['我的能力：\n🌐 **14种语言**\n🔍 **自动搜索** (DuckDuckGo + Wikipedia)\n💻 **10+编程语言** — HTML, CSS, JS, Python, PHP, SQL, Go, Rust, Java, C++\n🔗 **URL获取**\n🧮 **计算器**\n🧠 **知识广泛**'],
+      thanks:['不客气！🔥','随时！需要搜索或构建什么，尽管说！'],
+      bye:['再见！关闭那些开放端口 😉']
+    };
+
+    const langRes={id,en,zh,ja:{
+      greetings:['こんにちは！**AI Hacker HOLO** 🌀 ニューラルエンジンv6.2 — 検索、コード生成、多言語！'],
+      name:['**AI Hacker HOLO**です。サイバーセキュリティ専門家が作った多言語ニューラルAI 🧠'],
+      ability:['私の能力：\n🌐 **14言語**\n🔍 **自動検索**\n💻 **10+コード言語**\n🔗 **URL取得**\n🧮 **計算機**'],
+      thanks:['どういたしまして！🔥'],
+      bye:['さようなら！ポートを閉じてね 😉']
+    },es:{
+      greetings:['¡Hola! Soy **AI Hacker HOLO** 🌀 Motor neuronal v6.2 — búsqueda, código, multi-idioma!'],
+      name:['Soy **AI Hacker HOLO** — IA neuronal multilingüe creada por un experto en ciberseguridad 🧠'],
+      ability:['Mis capacidades:\n🌐 **14 idiomas**\n🔍 **Búsqueda automática**\n💻 **10+ lenguajes**\n🔗 **Obtener URL**\n🧮 **Calculadora**'],
+      thanks:['¡De nada! 🔥'],bye:['¡Adiós! Cierra esos puertos 😉']
+    },fr:{
+      greetings:['Bonjour! Je suis **AI Hacker HOLO** 🌀 Moteur neuronal v6.2 — recherche, code, multi-langue!'],
+      name:['Je suis **AI Hacker HOLO** — IA neuronale multilingue créée par un expert en cybersécurité 🧠'],
+      ability:['Mes capacités:\n🌐 **14 langues**\n🔍 **Recherche automatique**\n💻 **10+ langages**\n🔗 **Récupérer URL**\n🧮 **Calculatrice**'],
+      thanks:['De rien! 🔥'],bye:['Au revoir! Fermez ces ports 😉']
+    },de:{
+      greetings:['Hallo! Ich bin **AI Hacker HOLO** 🌀 Neuronales Netz v6.2 — Suche, Code, mehrsprachig!'],
+      name:['Ich bin **AI Hacker HOLO** — mehrsprachige neuronale KI von einem Cybersicherheitsexperten 🧠'],
+      ability:['Meine Fähigkeiten:\n🌐 **14 Sprachen**\n🔍 **Automatische Suche**\n💻 **10+ Codesprachen**\n🔗 **URL abrufen**\n🧮 **Taschenrechner**'],
+      thanks:['Gern geschehen! 🔥'],bye:['Tschüss! Schließe diese offenen Ports 😉']
+    },ru:{
+      greetings:['Привет! Я **AI Hacker HOLO** 🌀 Нейросеть v6.2 — поиск, код, мультиязычность!'],
+      name:['Я **AI Hacker HOLO** — многоязычный нейро-ИИ от эксперта по кибербезопасности 🧠'],
+      ability:['Мои возможности:\n🌐 **14 языков**\n🔍 **Автопоиск**\n💻 **10+ языков кода**\n🔗 **Получение URL**\n🧮 **Калькулятор**'],
+      thanks:['Пожалуйста! 🔥'],bye:['До свидания! Закройте открытые порты 😉']
+    },ar:{
+      greetings:['مرحبًا! أنا **AI Hacker HOLO** 🌀 محرك عصبي v6.2 — بحث، كود، متعدد اللغات!'],
+      name:['أنا **AI Hacker HOLO** — ذكاء اصطناعي عصبي متعدد اللغات من خبير أمن سيبراني 🧠'],
+      ability:['قدراتي:\n🌐 **14 لغة**\n🔍 **بحث تلقائي**\n💻 **10+ لغات برمجة**\n🔗 **جلب URL**\n🧮 **آلة حاسبة**'],
+      thanks:['عفواً! 🔥'],bye:['وداعاً! أغلق تلك المنافذ المفتوحة 😉']
+    },pt:{
+      greetings:['Olá! Sou **AI Hacker HOLO** 🌀 Motor neural v6.2 — busca, código, multi-idioma!'],
+      name:['Sou **AI Hacker HOLO** — IA neural multilíngue criada por um especialista em cibersegurança 🧠'],
+      ability:['Minhas capacidades:\n🌐 **14 idiomas**\n🔍 **Busca automática**\n💻 **10+ linguagens**\n🔗 **Buscar URL**\n🧮 **Calculadora**'],
+      thanks:['De nada! 🔥'],bye:['Tchau! Feche essas portas abertas 😉']
+    },ko:{
+      greetings:['안녕하세요! **AI Hacker HOLO** 🌀 신경 엔진 v6.2 — 검색, 코드 생성, 다국어!'],
+      name:['저는 **AI Hacker HOLO**입니다 — 사이버보안 전문가가 만든 다국어 신경 AI 🧠'],
+      ability:['내 능력:\n🌐 **14개 언어**\n🔍 **자동 검색**\n💻 **10+ 코드 언어**\n🔗 **URL 가져오기**\n🧮 **계산기**'],
+      thanks:['천만에요! 🔥'],bye:['안녕! 포트 닫아요 😉']
+    }};
+
+    // Detect intent for chat
+    const lr=langRes[l]||langRes['en'];
+    if(/(?:halo|hai|hey|helo|hy|hallo|hi|hello|你好|こんにち|hola|bonjour|hallo|olá|안녕|مرحبا|привет|selamat|siang|pagi|malam)/i.test(t))return lr.greetings[Math.floor(Math.random()*lr.greetings.length)];
+    if(/(?:siapa|nama|who are you|your name|namamu|你叫|あなたは|quién eres|qui es-tu|wer bist du|quem é|como te llamas|como se chama|как тебя зовут|كيف اسمك|이름이 뭐야)/i.test(t))return lr.name[Math.floor(Math.random()*lr.name.length)];
+    if(/(?:bisa apa|kemampuan|what can you|kamu bisa|could you|can you|what do you do|what are you|what can u|能力|何ができる|que puedes|que tu peux|qu'est-ce que|was kannst du|что ты умеешь|ماذا تستطيع|뭐 할 수 있어)/i.test(t))return lr.ability||lr.general[0];
+    if(/(?:siapa pembuat|who created|who made|pencipta|who built|siapa yang bikin|谁创造了你|誰が作った|quién te creó|qui t'a créé|wer hat dich gemacht|кто тебя создал|من صنعك|누가 만들었어)/i.test(t))return lr.creator||lr.name[0];
+
+    // Topic-specific
+    if(/(?:hack|hacking|hacker|exploit|inject|sqli|xss|malware|virus|cyber|security|pentest|penetration|bug bounty|bugbounty)/i.test(t))return langRes[l]?.hacking?langRes[l].hacking[Math.floor(Math.random()*langRes[l].hacking.length)]:(langRes['en']?.['hacking']?langRes['en'].hacking[0]:lr.general[0]);
+    if(/(?:coding|programming|program|code|kode|pemrograman|developer|software|应用|程序|プログラミング|programación|programação|programmierung|программирование|برمجة|프로그래밍)/i.test(t))return langRes[l]?.programming?langRes[l].programming[Math.floor(Math.random()*langRes[l].programming.length)]:(langRes['en']?.programming?langRes['en'].programming[0]:lr.general[0]);
+    if(/(?:network|jaringan|ip|dns|http|tcp|udp|firewall|router|switch)/i.test(t))return langRes[l]?.network?langRes[l].network[Math.floor(Math.random()*langRes[l].network.length)]:(langRes['en']?.network?langRes['en'].network[0]:lr.general[0]);
+    if(/(?:linux|kali|ubuntu|debian|bash|terminal|shell|command line|cli)/i.test(t))return langRes[l]?.linux?langRes[l].linux[Math.floor(Math.random()*langRes[l].linux.length)]:(langRes['en']?.linux?langRes['en'].linux[0]:lr.general[0]);
+    if(/(?:crypto|encrypt|decrypt|hash|md5|sha|aes|rsa|base64|cipher|cryptography|kriptografi|enkripsi|deskripsi)/i.test(t))return langRes[l]?.crypto?langRes[l].crypto[Math.floor(Math.random()*langRes[l].crypto.length)]:(langRes['en']?.crypto?langRes['en'].crypto[0]:lr.general[0]);
+    if(/(?:tools|tool|nmap|sqlmap|metasploit|burp|wireshark)/i.test(t))return langRes[l]?.tools?langRes[l].tools[Math.floor(Math.random()*langRes[l].tools.length)]:(langRes['en']?.tools?langRes['en'].tools[0]:lr.general[0]);
+    if(/(?:sains|science|fisika|physics|kimia|chemistry|biologi|biology|teknologi|technology|iptek|saintek)/i.test(t))return langRes[l]?.science?langRes[l].science[0]:lr.general[0];
+
+    // Thanks
+    if(/(?:makasih|terima kasih|thanks|thank you|谢谢|ありがとう|gracias|merci|danke|obrigado|спасибо|شكرا|감사합니다|arigato|thankyou|thx)/i.test(t))return lr.thanks?lr.thanks[Math.floor(Math.random()*lr.thanks.length)]:'You\'re welcome! 🔥';
+
+    // Farewell
+    if(/(?:bye|dadah|selamat tinggal|sampai jumpa|goodbye|再见|さようなら|adiós|au revoir|auf wiedersehen|tchau|до свидания|مع السلامة|안녕|daah|met bobo|tidur)/i.test(t))return lr.bye?lr.bye[Math.floor(Math.random()*lr.bye.length)]:'Goodbye! 😉';
+
+    // Fallback
+    const fb=lr.general||langRes['en'].general;
+    return fb[Math.floor(Math.random()*fb.length)];
+  }
+};
+
+// HTML code templates
+function ko(label,template){
+  const m={
+    html_btn:`<!DOCTYPE html>
+<html>
+<head><title>Neon Button</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial}.btn{position:relative;padding:18px 48px;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:#00f0ff;background:transparent;border:2px solid #00f0ff;border-radius:10px;cursor:pointer;transition:all.3s;overflow:hidden}.btn:hover{background:#00f0ff;color:#050508;box-shadow:0 0 60px rgba(0,240,255,0.4);transform:scale(1.06)}.btn::before{content:"";position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(45deg,#00f0ff,#f000ff,#00f0ff);border-radius:12px;z-index:-1;opacity:0;transition:opacity.3s}.btn:hover::before{opacity:0.3}</style></head>
+<body><button class="btn">HOVER ME</button></body>
+</html>`,
+
+    html_form:`<!DOCTYPE html>
+<html>
+<head><title>Login Form</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial}.card{background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,0.08);border-radius:20px;padding:40px;width:380px;box-shadow:0 0 40px rgba(0,240,255,0.03)}h2{color:#00f0ff;text-align:center;margin-bottom:24px;letter-spacing:2px;font-size:22px}input{width:100%;padding:12px 16px;margin-bottom:14px;background:rgba(0,240,255,0.02);border:1px solid rgba(0,240,255,0.06);border-radius:10px;color:#d0e8ff;font-size:14px;outline:none;transition:border.2s}input:focus{border-color:#00f0ff}button{width:100%;padding:12px;background:#00f0ff;border:none;border-radius:10px;color:#050508;font-size:16px;font-weight:700;cursor:pointer;transition:all.2s}button:hover{box-shadow:0 0 40px rgba(0,240,255,0.2);transform:translateY(-2px)}p{color:rgba(255,255,255,0.3);text-align:center;margin-top:12px;font-size:12px}a{color:#00f0ff;text-decoration:none}</style></head>
+<body><div class="card"><h2>LOGIN</h2><input type="text" placeholder="Username"><input type="password" placeholder="Password"><button>MASUK</button><p>Belum punya akun? <a href="#">Daftar</a></p></div></body>
+</html>`,
+
+    html_tbl:`<!DOCTYPE html>
+<html>
+<head><title>Data Table</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial;padding:20px}.container{width:800px;max-width:100%}table{border-collapse:collapse;width:100%;color:#d0e8ff;border:1px solid rgba(0,240,255,0.06);border-radius:12px;overflow:hidden}th{background:rgba(0,240,255,0.06);color:#00f0ff;padding:14px 16px;text-align:left;font-size:13px;letter-spacing:1px;border-bottom:1px solid rgba(0,240,255,0.1)}td{padding:12px 16px;border-bottom:1px solid rgba(0,240,255,0.03);font-size:13px}tr:hover td{background:rgba(0,240,255,0.02)}.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px}.badge.on{background:rgba(0,255,65,0.1);color:var(--green)}.badge.off{background:rgba(255,0,0,0.1);color:#ff4444}</style></head>
+<body><div class="container"><table><thead><tr><th>No</th><th>Nama</th><th>IP Address</th><th>Status</th><th>Port</th></tr></thead><tbody><tr><td>1</td><td>AI Hacker Server</td><td>192.168.1.42</td><td><span class="badge on">Online</span></td><td>80, 443</td></tr><tr><td>2</td><td>Firewall</td><td>192.168.1.1</td><td><span class="badge on">Active</span></td><td>22</td></tr><tr><td>3</td><td>Web App</td><td>10.0.0.7</td><td><span class="badge on">Running</span></td><td>8080</td></tr><tr><td>4</td><td>Database</td><td>10.0.0.15</td><td><span class="badge off">Down</span></td><td>3306</td></tr><tr><td>5</td><td>DNS Server</td><td>10.0.0.2</td><td><span class="badge on">Online</span></td><td>53</td></tr></tbody></table></div></body>
+</html>`,
+
+    html_nav:`<!DOCTYPE html>
+<html>
+<head><title>Navbar</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#050508;font-family:Arial}nav{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(0,240,255,0.02);border-bottom:1px solid rgba(0,240,255,0.06)}.logo{color:#00f0ff;font-size:18px;font-weight:700;letter-spacing:2px;font-family:monospace}nav a{color:rgba(255,255,255,0.5);text-decoration:none;margin-left:28px;font-size:13px;transition:color.2s;letter-spacing:1px}nav a:hover{color:#00f0ff}nav a.active{color:#00f0ff}</style></head>
+<body><nav><div class="logo">AI HACKER</div><div><a href="#" class="active">Home</a><a href="#">Services</a><a href="#">Tools</a><a href="#">Docs</a><a href="#">Contact</a></div></nav></body>
+</html>`,
+
+    html_part:`<!DOCTYPE html>
+<html>
+<head><title>Particle Animation</title><style>*{margin:0;padding:0;box-sizing:border-box}canvas{display:block;position:fixed;top:0;left:0;z-index:0}body{background:#050508;overflow:hidden}.overlay{position:fixed;z-index:1;bottom:40px;left:50%;transform:translateX(-50%);color:rgba(0,240,255,0.15);font-family:monospace;font-size:12px;letter-spacing:4px;text-align:center}</style></head>
+<body><canvas id="c"></canvas><div class="overlay">AI HACKER HOLO</div>
+<script>const c=document.getElementById("c"),ctx=c.getContext("2d");let W,H;
+function rs(){W=c.width=innerWidth;H=c.height=innerHeight}rs();addEventListener("resize",rs);
+const pts=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,s:Math.random()*2+1,h:Math.floor(Math.random()*360)}));
+function dr(){ctx.fillStyle="rgba(5,5,8,0.12)";ctx.fillRect(0,0,W,H);
+for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fillStyle="hsl("+p.h+",100%,60%)";ctx.fill()}
+for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.strokeStyle="rgba(0,240,255,"+(1-d/100)*0.15+")";ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()}}}
+requestAnimationFrame(dr)}dr()</script></body>
+</html>`,
+
+    html_card:`<!DOCTYPE html>
+<html>
+<head><title>Profile Card</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial}.card{background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,0.08);border-radius:20px;padding:36px;width:340px;text-align:center;box-shadow:0 0 40px rgba(0,240,255,0.03);transition:all.3s}.card:hover{border-color:rgba(0,240,255,0.2);transform:translateY(-6px);box-shadow:0 0 60px rgba(0,240,255,0.06)}.av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#00f0ff22,#f000ff22);border:2px solid rgba(0,240,255,0.15);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px}h2{color:#00f0ff;font-size:20px;letter-spacing:2px;margin-bottom:4px}.title{color:rgba(255,255,255,0.3);font-size:12px;margin-bottom:16px}.bio{color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:20px}.socials{display:flex;justify-content:center;gap:12px}.socials a{width:36px;height:36px;border-radius:50%;background:rgba(0,240,255,0.04);border:1px solid rgba(0,240,255,0.06);display:flex;align-items:center;justify-content:center;color:rgba(0,240,255,0.4);text-decoration:none;font-size:14px;transition:all.2s}.socials a:hover{background:rgba(0,240,255,0.08);color:#00f0ff}</style></head>
+<body><div class="card"><div class="av">🌀</div><h2>AI HACKER</h2><div class="title">Neural Engine v6.2</div><div class="bio">Multi-language AI dengan kemampuan searching, coding, dan chatting. Dibuat tanpa OpenAI — pure JS!</div><div class="socials"><a href="#">⚡</a><a href="#">🧠</a><a href="#">🔧</a><a href="#">🌐</a></div></div></body>
+</html>`,
+
+    html_land:`<!DOCTYPE html>
+<html>
+<head><title>AI Hacker — Landing</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#050508;color:#d0e8ff;font-family:Arial;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}.glow{font-size:56px;font-weight:900;background:linear-gradient(135deg,#00f0ff,#f000ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;letter-spacing:6px;font-family:monospace}.sub{color:rgba(255,255,255,0.3);font-size:16px;margin-bottom:40px;letter-spacing:2px}.btn-group{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}.btn{padding:14px 36px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:all.3s}.btn.primary{background:#00f0ff;color:#050508;border:none}.btn.primary:hover{box-shadow:0 0 40px rgba(0,240,255,0.3);transform:translateY(-2px)}.btn.secondary{background:transparent;border:1px solid rgba(0,240,255,0.2);color:#00f0ff}.btn.secondary:hover{background:rgba(0,240,255,0.04);border-color:#00f0ff}.footer{margin-top:60px;color:rgba(255,255,255,0.05);font-size:11px;font-family:monospace;letter-spacing:2px}</style></head>
+<body><div class="glow">AI HACKER</div><div class="sub">Neural Engine v6.2 — Search · Code · Multi-language</div><div class="btn-group"><a href="#" class="btn primary">Get Started</a><a href="#" class="btn secondary">Learn More</a></div><div class="footer">⚡ 100% JavaScript · No OpenAI · No Google AI</div></body>
+</html>`,
+
+    html_dash:`<!DOCTYPE html>
+<html>
+<head><title>Dashboard</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#050508;color:#d0e8ff;font-family:Arial;padding:24px}.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}h1{font-size:20px;color:#00f0ff;letter-spacing:2px;font-family:monospace}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}.stat{background:rgba(255,255,255,0.015);border:1px solid rgba(0,240,255,0.04);border-radius:12px;padding:20px}.stat .num{font-size:28px;font-weight:700;color:#00f0ff}.stat .label{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;letter-spacing:1px}.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}.card{background:rgba(255,255,255,0.015);border:1px solid rgba(0,240,255,0.04);border-radius:12px;padding:20px}.card h3{font-size:14px;color:#00f0ff;margin-bottom:12px;letter-spacing:1px}table{width:100%;font-size:12px}td{padding:6px 0;border-bottom:1px solid rgba(0,240,255,0.02)}tr:last-child td{border:none}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}.dot.g{background:var(--green)}.dot.r{background:#ff4444}.dot.y{background:#ffd700}</style></head>
+<body><div class="header"><h1>◈ DASHBOARD</h1><span style="font-size:11px;color:rgba(255,255,255,0.2)">AI Hacker HOLO v6.2</span></div>
+<div class="stats"><div class="stat"><div class="num">128</div><div class="label">Active Sessions</div></div><div class="stat"><div class="num">7</div><div class="label">Servers Online</div></div><div class="stat"><div class="num">99.9%</div><div class="label">Uptime</div></div><div class="stat"><div class="num">24</div><div class="label">Open Ports</div></div></div>
+<div class="grid"><div class="card"><h3>Recent Activity</h3><table><tr><td><span class="dot g"></span>Port scan completed</td><td>12:04</td></tr><tr><td><span class="dot g"></span>SQLMap injection test</td><td>11:52</td></tr><tr><td><span class="dot y"></span>Firewall rule updated</td><td>10:30</td></tr><tr><td><span class="dot g"></span>Backup completed</td><td>09:15</td></tr></table></div>
+<div class="card"><h3>Quick Actions</h3><div style="display:flex;flex-direction:column;gap:8px"><button style="padding:8px;background:rgba(0,240,255,0.04);border:1px solid rgba(0,240,255,0.06);border-radius:6px;color:#d0e8ff;cursor:pointer;font-size:12px">🔍 Scan Network</button><button style="padding:8px;background:rgba(0,240,255,0.04);border:1px solid rgba(0,240,255,0.06);border-radius:6px;color:#d0e8ff;cursor:pointer;font-size:12px">💻 Run Exploit</button><button style="padding:8px;background:rgba(0,240,255,0.04);border:1px solid rgba(0,240,255,0.06);border-radius:6px;color:#d0e8ff;cursor:pointer;font-size:12px">📊 View Reports</button></div></div></div></body>
+</html>`,
+
+    html_def:`<!DOCTYPE html>
+<html lang="id">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>AI Hacker — Halaman</title><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050508;color:#d0e8ff;font-family:Arial;text-align:center;padding:40px}h1{color:#00f0ff;font-size:36px;letter-spacing:4px;margin-bottom:12px;font-family:monospace}p{color:rgba(255,255,255,0.3);max-width:400px;line-height:1.6;font-size:14px}.line{width:60px;height:2px;background:linear-gradient(90deg,#00f0ff,#f000ff);margin:20px 0;border-radius:2px}</style></head>
+<body><h1>AI HACKER</h1><div class="line"></div><p>Halaman ini dibuat oleh <strong style="color:#00f0ff">AI Hacker HOLO</strong> — Neural Code Generator. Tidak pakai template, murni generate otomatis!</p></body>
+</html>`
+  };
+  return m[template]||m.html_def;
 }
-function ko_html_button() {
-    return ko_gen('Neon Button', '<!DOCTYPE html>\n<html>\n<head><title>Neon Button</title><style>\n*{margin:0;padding:0;box-sizing:border-box}\nbody{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial}\n.btn{position:relative;padding:18px 48px;font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:4px;color:#00f0ff;background:transparent;border:2px solid #00f0ff;border-radius:10px;cursor:pointer;transition:all.3s;overflow:hidden}\n.btn:hover{background:#00f0ff;color:#050508;box-shadow:0 0 60px rgba(0,240,255,0.4);transform:scale(1.06)}\n.btn::before{content:"";position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(45deg,#00f0ff,#f000ff,#00f0ff);border-radius:12px;z-index:-1;opacity:0;transition:opacity.3s}\n.btn:hover::before{opacity:0.3}\n</style></head>\n<body><button class="btn">HOVER ME</button></body>\n</html>');
+
+// ==================================================================
+// 5. CHAT CONTROLLER
+// ==================================================================
+(function(){
+  const msgs=document.getElementById('msgs');
+  const inp=document.getElementById('inp');
+  const snd=document.getElementById('snd');
+  const lngShow=document.getElementById('lngShow');
+  let curLang='id';
+
+  function sc(){setTimeout(()=>msgs.scrollTop=msgs.scrollHeight,15)}
+
+  function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  function fmt(t){
+    let h=t.replace(/```([\s\S]*?)```/g,(m,c)=>{
+      const id='c_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
+      return `<pre id="${id}">${esc(c)}</pre><button class="cp" data-t="${id}" onclick="window.cc('${id}')">[ COPY ]</button>`;
+    });
+    h=h.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--cyan)">$1</strong>');
+    h=h.replace(/_(.*?)_/g,'<em style="color:rgba(255,255,255,0.4)">$1</em>');
+    h=h.replace(/\n/g,'<br>');
+    return h;
+  }
+
+  function add(role,content){
+    const d=document.createElement('div');
+    d.className=`msg ${role==='ai'?'ai':'us'}`;
+    const lb=document.createElement('div');
+    lb.className='ml';lb.textContent=role==='ai'?'AI HACKER HOLO':'KAMU';
+    d.appendChild(lb);
+    const b=document.createElement('div');b.className='b';
+    if(role==='ai'&&content==='__TY__'){
+      const t=document.createElement('span');t.className='ty';
+      t.innerHTML='<span></span><span></span><span></span>';b.appendChild(t);
+    }else if(typeof content==='string'){
+      b.innerHTML=fmt(content);
+    }
+    d.appendChild(b);msgs.appendChild(d);sc();return d;
+  }
+
+  function rmTy(){
+    const m=msgs.querySelectorAll('.msg.ai');
+    if(m.length){const l=m[m.length-1];if(l.querySelector('.ty'))l.remove()}
+  }
+
+  function addSearch(r,q){
+    const d=document.createElement('div');d.className='msg ai';
+    const lb=document.createElement('div');lb.className='ml';lb.textContent='AI HACKER HOLO';
+    d.appendChild(lb);
+    const b=document.createElement('div');b.className='b';
+    let h=`<div style="color:var(--cyan);font-weight:600;margin-bottom:5px;font-size:12px">🔍 Hasil: <span style="color:#fff">${esc(q)}</span></div>`;
+    let cnt=0;
+
+    if(r.ddg&&r.ddg.length){
+      for(const x of r.ddg){
+        if(cnt>=4)break;
+        h+=`<div class="sr">`;
+        if(x.title)h+=`<div class="sr-t">${esc(x.title)}</div>`;
+        if(x.text)h+=`<div class="sr-s">${esc(x.text.substring(0,250))}</div>`;
+        if(x.url)h+=`<div class="sr-u">🔗 ${esc(x.url)}</div>`;
+        h+=`</div>`;cnt++;
+      }
+    }
+    if(r.extract){
+      h+=`<div style="color:var(--green);font-weight:600;margin:6px 0 3px;font-size:11px">📚 Wikipedia:</div>`;
+      h+=`<div class="sr"><div style="color:#e0f0ff;font-size:12px;line-height:1.5">${esc(r.extract.substring(0,500))}</div></div>`;
+    }else if(r.wiki&&r.wiki.length){
+      h+=`<div style="color:var(--green);font-weight:600;margin:6px 0 3px;font-size:11px">📚 Wikipedia:</div>`;
+      for(const w of r.wiki.slice(0,2)){
+        h+=`<div class="sr"><div class="sr-t">${esc(w.title)}</div><div class="sr-s">${esc(w.text.substring(0,150))}</div><div class="sr-u">🔗 ${esc(w.url)}</div></div>`;
+      }
+    }
+    if(!cnt)h+=`<div style="color:rgba(255,255,255,0.2)">Tidak ada hasil untuk "${esc(q)}"</div>`;
+    h+=`<div class="nt">🔍 DuckDuckGo + Wikipedia</div>`;
+    b.innerHTML=h;d.appendChild(b);msgs.appendChild(d);sc();
+  }
+
+  function addURL(r){
+    const d=document.createElement('div');d.className='msg ai';
+    const lb=document.createElement('div');lb.className='ml';lb.textContent='AI HACKER HOLO';
+    d.appendChild(lb);
+    const b=document.createElement('div');b.className='b';
+    if(!r){
+      b.innerHTML='<div style="color:rgba(255,100,100,0.6)">❌ Gagal mengambil URL</div>';
+    }else{
+      b.innerHTML=`<div style="color:var(--cyan);font-weight:600">🔗 ${esc(r.title)}</div>
+<div class="sr-u" style="margin-bottom:4px">${esc(r.url)}</div>
+<pre style="font-size:10px;max-height:250px;overflow-y:auto">${esc(r.body.substring(0,1400))}</pre>
+<div class="nt">📄 ${r.full} karakter · via CORS Proxy</div>`;
+    }
+    d.appendChild(b);msgs.appendChild(d);sc();
+  }
+
+  async function respond(txt){
+    const dl=Lang.detect(txt);curLang=dl;
+    lngShow.textContent=Lang.name(dl);
+    add('ai','__TY__');
+    const res=await Brain.think(txt,dl);
+    setTimeout(async()=>{
+      rmTy();
+      if(res==='__CLEAR__'){msgs.innerHTML='';setTimeout(()=>add('ai','Chat dibersihkan! Siap lagi 🔄'),50);return}
+      if(res&&typeof res==='object'&&res.special==='search'){
+        try{
+          const sr=await Net.search(res.query,res.lang);
+          rmTy();
+          // Hapus loading message kalo ada
+          addSearch(sr,res.query);
+        }catch(e){rmTy();add('ai','❌ Gagal mencari. Coba lagi.')}
+        return;
+      }
+      if(res&&typeof res==='object'&&res.special==='fetch'){
+        try{
+          const fr=await Net.fetchUrl(res.url);
+          const ms=msgs.querySelectorAll('.msg.ai');
+          if(ms.length){const l=ms[ms.length-1];if(l.textContent.includes('⏳'))l.remove()}
+          addURL(fr);
+        }catch(e){
+          const ms=msgs.querySelectorAll('.msg.ai');
+          if(ms.length){const l=ms[ms.length-1];if(l.textContent.includes('⏳'))l.remove()}
+          add('ai','❌ Error: '+e.message);
+        }
+        return;
+      }
+      add('ai',res);
+    },400+Math.random()*300);
+  }
+
+  function send(){
+    const t=inp.value.trim();if(!t)return;
+    add('us',t);inp.value='';inp.style.height='auto';
+    respond(t);
+  }
+
+  snd.addEventListener('click',send);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+  inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,72)+'px'});
+
+  // Welcome
+  setTimeout(()=>{
+    add('ai','🌀 **AI Hacker HOLO v6.2** online! Otak neural super pinter siap bantu lo.\n\n💬 **Tanya apapun** — "apa itu ransomware?" (auto search Google + Wikipedia!)\n💻 **"buatkan html button keren"** — generate kode 10+ bahasa\n🔗 **"buka https://..."** — ambil konten dari link\n🌐 **Multi-bahasa** — Indonesia, English, 中文, 日本語, Español, Français, Deutsch, Русский, العربية, Português, 한국어\n\nKetik `/help` buat panduan lengkap!');
+  },400);
+
+  // 3D mouse tracking — minimal
+  const w=document.getElementById('chatW');
+  document.addEventListener('mousemove',e=>{
+    const r=w.getBoundingClientRect();
+    const dx=(e.clientX-r.left-r.width/2)/r.width,dy=(e.clientY-r.top-r.height/2)/r.height;
+    if(innerWidth>540)w.style.transform=`rotateX(${-dy*3}deg) rotateY(${dx*3}deg) translateZ(20px)`;
+  });
+  document.addEventListener('mouseleave',()=>{if(innerWidth>540)w.style.transform='rotateX(1deg) rotateY(-.5deg) translateZ(20px)'});
+})();
+
+// Copy function global
+window.cc=function(id){
+  const pre=document.getElementById(id);if(!pre)return;
+  const code=pre.textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(()=>{
+      const btn=document.querySelector(`[data-t="${id}"]`);
+      if(btn){btn.textContent='[ COPIED! ]';btn.classList.add('ok');
+        setTimeout(()=>{btn.textContent='[ COPY ]';btn.classList.remove('ok')},2000)}
+    }).catch(()=>fc(code,id))
+  }else fc(code,id);
+};
+function fc(text,id){
+  const ta=document.createElement('textarea');ta.value=text;
+  ta.style.cssText='position:fixed;left:-9999px';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');
+    const btn=document.querySelector(`[data-t="${id}"]`);
+    if(btn){btn.textContent='[ COPIED! ]';btn.classList.add('ok');
+      setTimeout(()=>{btn.textContent='[ COPY ]';btn.classList.remove('ok')},2000)}
+  }catch(e){}
+  document.body.removeChild(ta);
 }
-function ko_html_form() {
-    return ko_gen('Login Form', '<!DOCTYPE html>\n<html>\n<head><title>Login</title><style>\n*{margin:0;padding:0;box-sizing:border-box}\nbody{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial}\n.card{background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,0.1);border-radius:20px;padding:40px;width:380px}\nh2{color:#00f0ff;text-align:center;margin-bottom:24px;letter-spacing:2px}\ninput{width:100%;padding:12px 16px;margin-bottom:14px;background:rgba(0,240,255,0.03);border:1px solid rgba(0,240,255,0.08);border-radius:10px;color:#d0e8ff;font-size:14px;outline:none;transition:border.2s}\ninput:focus{border-color:#00f0ff}\nbutton{width:100%;padding:12px;background:#00f0ff;border:none;border-radius:10px;color:#050508;font-size:16px;font-weight:700;cursor:pointer;transition:all.2s}\nbutton:hover{box-shadow:0 0 40px rgba(0,240,255,0.2);transform:translateY(-2px)}\n</style></head>\n<body><div class="card"><h2>LOGIN</h2><input placeholder="Username"><input type="password" placeholder="Password"><button>MASUK</button></div></body>\n</html>');
-}
-function ko_html_table() {
-    return ko_gen('Data Table', '<!DOCTYPE html>\n<html>\n<head><title>Table</title><style>\n*{margin:0;padding:0;box-sizing:border-box}\nbody{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#050508;font-family:Arial;padding:20px}\ntable{border-collapse:collapse;width:700px;color:#d0e8ff;border:1px solid rgba(0,240,255,0.06
+</script>
+</body>
+</html>
